@@ -1,5 +1,5 @@
 {
-  "name": "vue-connect-anything",
+  "name": "vue-connector",
   "version": "0.0.1",
   "description": "🪡 Connect anything to your vue components.",
   "repository": {
@@ -36,12 +36,17 @@
     "prepublish": "pnpm build",
     "release": "bumpp package.json --commit --push --tag && pnpm -r publish --access public"
   },
+  "dependencies": {
+    "vue-forward-ref": "^0.0.5"
+  },
   "devDependencies": {
     "bumpp": "^8.2.1",
+    "jsdom": "^21.1.0",
     "tsup": "^6.5.0",
     "typescript": "^4.9.4",
     "vitest": "^0.28.3",
-    "vue": "^3.2.47"
+    "vue": "^3.2.47",
+    "vue2": "npm:vue@^2.7.0"
   },
   "peerDependencies": {
     "typescript": ">=4.4.4",
