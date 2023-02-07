@@ -1,9 +1,9 @@
-import type { Component, defineComponent, DefineComponent, getCurrentInstance, VNode } from 'vue'
+import type { Component, DefineComponent, getCurrentInstance, VNode } from 'vue'
 
-export type ComponentType =
+export type ComponentType<Props = any> =
   | string
-  | Component
-  | DefineComponent
+  | Component<Props>
+  | DefineComponent<Props>
   | Symbol // Text | Comment | Teleport | Suspense
   | { __isSuspense: true } // Suspense
   | Function // FunctionalComponent
@@ -33,3 +33,9 @@ export type MergeProps<StateProps, StaticProps, OwnProps, MergedProps> = (
   ownProps: OwnProps,
   instance: ComponentInternalInstance
 ) => MergedProps
+
+export type ConnectedComponent<Props> = Component<Props>
+
+export type Connector<InjectedProps, NeedsProps> = <C extends ComponentType<NeedsProps>>(
+  component: C
+) => ConnectedComponent<InjectedProps & Omit<NeedsProps, keyof InjectedProps>>

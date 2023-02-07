@@ -37,7 +37,7 @@
     "release": "bumpp package.json --commit --push --tag && pnpm -r publish --access public"
   },
   "dependencies": {
-    "vue-forward-ref": "^0.0.5"
+    "vue-forward-ref": "^0.0.7"
   },
   "devDependencies": {
     "bumpp": "^8.2.1",

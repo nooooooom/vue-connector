@@ -1,13 +1,13 @@
-# vue-connect-anything
+# vue-connector
 
-<a href="https://npmjs.com/package/vue-connect-anything"><img src="https://badgen.net/npm/v/vue-connect-anything?color=blue" alt="npm package"></a>
+<a href="https://npmjs.com/package/vue-connector"><img src="https://badgen.net/npm/v/vue-connector?color=blue" alt="npm package"></a>
 
 🪡 Connect anything to your vue components.
 
 ## Installation
 
 ```bash
-pnpm install vue-connect-anything
+pnpm install vue-connector
 ```
 
 ## Usage
