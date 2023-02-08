@@ -14,11 +14,9 @@ pnpm install vue-connector
 
 ## Usage
 
-Our purpose is straightforward, connect the state to the presentation component, or intercept and preprocess the props of the presentation component.
+Our purpose is straightforward, connect the state to the Presentational Component, or intercept and preprocess the props of the Presentational Component.
 
-`vue-connector` has already intercepted props for you. The important thing is that you need to tell it how you get the state, combine it into props, and pass it to the presentation component.
-
-We use defineConnector, which will accept your stateful composition logic.
+`vue-connector` has already intercepted props for you. The important thing is that you need to tell it how you get the state, combine it into props, and pass it to the Presentational Component.
 
 ```js
 import { defineConnector } from 'vue-connector'
