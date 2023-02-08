@@ -67,7 +67,7 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
   mergeProps: MergeProps<StateProps, StaticProps, OwnProps, MergedProps>
 ): Connector<MergedProps, OwnProps>
 
-// overload 5: mapStaticProps and mergeProps
+// overload 6: mapStaticProps and mergeProps
 export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, MergedProps = {}>(
   mapStateProps: null | undefined,
   mapStaticProps: MapStaticProps<StaticProps, OwnProps>,
