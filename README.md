@@ -12,6 +12,8 @@ pnpm install vue-connector
 
 ## Usage
 
+[playground](./playground)
+
 ## License
 
 [MIT](./LICENSE)
