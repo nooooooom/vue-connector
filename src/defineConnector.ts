@@ -22,10 +22,10 @@ const isVue2 = +version.split('.')[0] !== 3
 
 function defaultMergeProps<StateProps, StaticProps, OwnProps, MergedProps>(
   stateProps: StateProps,
-  dispatchProps: StaticProps,
+  staticProps: StaticProps,
   ownProps: OwnProps
 ): MergedProps {
-  return { ...ownProps, ...stateProps, ...dispatchProps } as MergedProps
+  return { ...ownProps, ...stateProps, ...staticProps } as MergedProps
 }
 
 // no-unnecessary-generics
