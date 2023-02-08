@@ -1,0 +1,13 @@
+{
+  "name": "vue-connector-playground-pinia",
+  "version": "0.0.2",
+  "private": "true",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "pinia": "^2.0.30",
+    "vite": "^4.1.1",
+    "vue": "^3.2.47"
+  }
+}
