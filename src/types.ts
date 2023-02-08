@@ -18,7 +18,7 @@ export type MapStateProps<StateProps, OwnProps> = (
 ) => StateProps
 
 export type MapStatePropsFactory<StateProps, OwnProps> = (
-  ownProps: OwnProps,
+  initialOwnProps: OwnProps,
   instance: ComponentInternalInstance
 ) => MapStateProps<StateProps, OwnProps>
 

@@ -107,28 +107,36 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
           ...props
         })) as ComputedRef<OwnProps>
 
-        let _mapStateProps: MapStateProps<StateProps, OwnProps> | null = null
-        const stateProps =
-          typeof mapStateProps === 'function' &&
-          computed(() => {
-            const { value: ownPropsValue } = ownProps
-            const result = mapStateProps(ownPropsValue, instance)
-            if (typeof result === 'function') {
-              _mapStateProps = result as MapStateProps<StateProps, OwnProps>
+        let stateProps: ComputedRef<StateProps> | null = null
+        const _mapStateProps =
+          typeof mapStateProps === 'function' && mapStateProps(ownProps.value, instance)
+        if (typeof _mapStateProps === 'function') {
+          stateProps = computed(() =>
+            (_mapStateProps as MapStateProps<StateProps, OwnProps>)(ownProps.value, instance)
+          )
+          // @ts-check: keep call logic of mapStateProps
+          stateProps.value
+        } else if (typeof mapStateProps === 'function') {
+          const initialStateProps = _mapStateProps as StateProps
+          let initialization = false
+          stateProps = computed(() => {
+            if (!initialization) {
+              initialization = true
+              return initialStateProps
             }
-
-            return _mapStateProps ? _mapStateProps(ownPropsValue, instance) : (result as StateProps)
+            return (mapStateProps as MapStateProps<StateProps, OwnProps>)(ownProps.value, instance)
           })
+        }
 
         const staticProps = <StaticProps>(
-          (typeof mapStaticProps === 'function' ? mapStaticProps(ownProps.value, instance) : null)
+          (typeof mapStaticProps === 'function' ? mapStaticProps(ownProps.value, instance) : {})
         )
 
         const _mergeProps = typeof mergeProps === 'function' ? mergeProps : defaultMergeProps
         const mergedProps = computed(() => {
           const { value: ownPropsValue } = ownProps
           const statePropsValue = (stateProps ? stateProps.value : null) as StateProps
-          return _mergeProps(statePropsValue, staticProps as StaticProps, ownPropsValue, instance)
+          return _mergeProps(statePropsValue, staticProps, ownPropsValue, instance)
         })
 
         return () => {
@@ -146,7 +154,7 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
               const emptyVNode = h()
               if (component instanceof emptyVNode.constructor) {
                 vnode = component as VNode
-                vnode.data = finalProps
+                ;(vnode as any).data = finalProps
               }
             }
             if (!vnode) {
