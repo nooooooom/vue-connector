@@ -5,8 +5,10 @@ import {
   defineComponent,
   getCurrentInstance,
   h,
+  shallowReactive,
   version,
-  VNode
+  VNode,
+  watchEffect
 } from 'vue'
 import { forwardRef } from 'vue-forward-ref'
 import {
@@ -95,24 +97,28 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
       setup(props, context) {
         const instance = getCurrentInstance()!
 
-        // for compat Vue2
-        const { attrs, listeners } = context as any as {
-          attrs: Record<string, any>
-          listeners: Record<string, Function | Function[]>
-        }
         // Vue needs to resolve the value of props through "options.props",
         // here is to support the case of not passing in "options.props"
-        const ownProps = computed(() => ({
-          ...attrs,
-          ...props
-        })) as ComputedRef<OwnProps>
+        const ownProps = shallowReactive({}) as OwnProps
+        const { attrs, listeners } = context as any as {
+          attrs: Record<string, any>
+          listeners: Record<string, Function | Function[]> // for compat Vue2
+        }
+        watchEffect(
+          () => {
+            Object.assign(ownProps as any, attrs, props)
+          },
+          {
+            flush: 'pre'
+          }
+        )
 
         let stateProps: ComputedRef<StateProps> | null = null
         const _mapStateProps =
-          typeof mapStateProps === 'function' && mapStateProps(ownProps.value, instance)
+          typeof mapStateProps === 'function' && mapStateProps(ownProps, instance)
         if (typeof _mapStateProps === 'function') {
           stateProps = computed(() =>
-            (_mapStateProps as MapStateProps<StateProps, OwnProps>)(ownProps.value, instance)
+            (_mapStateProps as MapStateProps<StateProps, OwnProps>)(ownProps, instance)
           )
           // @ts-check: keep call logic of mapStateProps
           stateProps.value
@@ -124,19 +130,18 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
               initialization = true
               return initialStateProps
             }
-            return (mapStateProps as MapStateProps<StateProps, OwnProps>)(ownProps.value, instance)
+            return (mapStateProps as MapStateProps<StateProps, OwnProps>)(ownProps, instance)
           })
         }
 
         const staticProps = <StaticProps>(
-          (typeof mapStaticProps === 'function' ? mapStaticProps(ownProps.value, instance) : {})
+          (typeof mapStaticProps === 'function' ? mapStaticProps(ownProps, instance) : {})
         )
 
         const _mergeProps = typeof mergeProps === 'function' ? mergeProps : defaultMergeProps
         const mergedProps = computed(() => {
-          const { value: ownPropsValue } = ownProps
           const statePropsValue = (stateProps ? stateProps.value : null) as StateProps
-          return _mergeProps(statePropsValue, staticProps, ownPropsValue, instance)
+          return _mergeProps(statePropsValue, staticProps, ownProps, instance)
         })
 
         return () => {
