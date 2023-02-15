@@ -113,25 +113,20 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
           }
         )
 
-        let stateProps: ComputedRef<StateProps> | null = null
-        const _mapStateProps =
-          typeof mapStateProps === 'function' && mapStateProps(ownProps, instance)
-        if (typeof _mapStateProps === 'function') {
-          stateProps = computed(() =>
-            (_mapStateProps as MapStateProps<StateProps, OwnProps>)(ownProps, instance)
-          )
-          // @ts-check: keep call logic of mapStateProps
-          stateProps.value
-        } else if (typeof mapStateProps === 'function') {
-          const initialStateProps = _mapStateProps as StateProps
-          let initialization = false
-          stateProps = computed(() => {
-            if (!initialization) {
-              initialization = true
-              return initialStateProps
+        let _mapStateProps = mapStateProps as MapStateProps<StateProps, OwnProps>
+        const stateProps =
+          typeof mapStateProps === 'function' &&
+          computed(() => {
+            const stateProps = _mapStateProps(ownProps, instance)
+            if (typeof stateProps === 'function') {
+              _mapStateProps = stateProps as MapStateProps<StateProps, OwnProps>
+              return _mapStateProps(ownProps, instance)
             }
-            return (mapStateProps as MapStateProps<StateProps, OwnProps>)(ownProps, instance)
+            return stateProps
           })
+        // @ts-check: keep call logic of mapStateProps
+        if (stateProps) {
+          stateProps.value
         }
 
         const staticProps = <StaticProps>(
