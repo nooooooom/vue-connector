@@ -27,21 +27,17 @@ importers:
     specifiers:
       pinia: ^2.0.30
       vite: ^4.1.1
-      vue: ^3.2.47
     devDependencies:
-      pinia: 2.0.30_vue@3.2.47
+      pinia: 2.0.30
       vite: 4.1.1
-      vue: 3.2.47
 
   playground/vuex:
     specifiers:
       vite: ^4.1.1
-      vue: ^3.2.47
       vuex: ^4.0.2
     devDependencies:
       vite: 4.1.1
-      vue: 3.2.47
-      vuex: 4.0.2_vue@3.2.47
+      vuex: 4.0.2
 
 packages:
 
@@ -1505,7 +1501,7 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
-  /pinia/2.0.30_vue@3.2.47:
+  /pinia/2.0.30:
     resolution: {integrity: sha512-q6DUmxWwe/mQgg+55QQjykpKC+aGeGdaJV3niminl19V08dE+LRTvSEuqi6/NLSGCKHI49KGL6tMNEOssFiMyA==}
     peerDependencies:
       '@vue/composition-api': ^1.4.0
@@ -1518,8 +1514,7 @@ packages:
         optional: true
     dependencies:
       '@vue/devtools-api': 6.5.0
-      vue: 3.2.47
-      vue-demi: 0.13.11_vue@3.2.47
+      vue-demi: 0.13.11
     dev: true
 
   /pirates/4.0.5:
@@ -2075,7 +2070,7 @@ packages:
       - terser
     dev: true
 
-  /vue-demi/0.13.11_vue@3.2.47:
+  /vue-demi/0.13.11:
     resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
     engines: {node: '>=12'}
     hasBin: true
@@ -2086,8 +2081,6 @@ packages:
     peerDependenciesMeta:
       '@vue/composition-api':
         optional: true
-    dependencies:
-      vue: 3.2.47
     dev: true
 
   /vue-forward-ref/0.0.7_hmuptsblhheur2tugfgucj7gc4:
@@ -2116,13 +2109,12 @@ packages:
       '@vue/server-renderer': 3.2.47_vue@3.2.47
       '@vue/shared': 3.2.47
 
-  /vuex/4.0.2_vue@3.2.47:
+  /vuex/4.0.2:
     resolution: {integrity: sha512-M6r8uxELjZIK8kTKDGgZTYX/ahzblnzC4isU1tpmEuOIIKmV+TRdc+H4s8ds2NuZ7wpUTdGRzJRtoj+lI+pc0Q==}
     peerDependencies:
       vue: ^3.0.2
     dependencies:
       '@vue/devtools-api': 6.5.0
-      vue: 3.2.47
     dev: true
 
   /w3c-xmlserializer/4.0.0:
