@@ -117,12 +117,12 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
 
           let vnode: VNode | undefined = undefined
           if (isVue2) {
-            const realInstance = instance.proxy
+            const realInstance = instance.proxy as any
             const { props: _, ...inheritProps } = realInstance.$vnode.data || {}
             const finalProps = {
               ...inheritProps,
               attrs: mergedProps.value,
-              on: context.listeners,
+              on: (context as any).listeners,
               scopedSlots: realInstance.$scopedSlots
             } as any
 
@@ -139,7 +139,7 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
             }
           } else {
             const children = instance.vnode.children
-            vnode = h(component as any, mergedProps.value, children)
+            vnode = h(component as any, mergedProps.value as any, children as any)
           }
 
           return forwardRef(vnode)
