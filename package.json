@@ -1,6 +1,6 @@
 {
   "name": "vue-connector",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "🪡 Connect anything to your vue components.",
   "repository": {
     "type": "git",
