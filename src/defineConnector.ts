@@ -1,16 +1,15 @@
 import {
   computed,
-  ComputedRef,
   DefineComponent,
   defineComponent,
   getCurrentInstance,
   h,
-  shallowReactive,
   version,
-  VNode,
-  watchEffect
+  VNode
 } from 'vue'
 import { forwardRef } from 'vue-forward-ref'
+import { useProps } from './composables/useProps'
+import { useStateProps } from './composables/useStateProps'
 import {
   ComponentType,
   Connector,
@@ -84,59 +83,31 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
     | null
     | undefined,
   mapStaticProps?: MapStaticProps<StaticProps, OwnProps> | null | undefined,
-  mergeProps?: MergeProps<StateProps, StaticProps, OwnProps, MergedProps> | null | undefined
+  userMergeProps?: MergeProps<StateProps, StaticProps, OwnProps, MergedProps> | null | undefined
 ): unknown {
   return (component: ComponentType) => {
     const wrappedComponentName = (component as DefineComponent).name || 'Component'
-
-    const displayName = `Connect${wrappedComponentName}`
+    const componentName = `Connect${wrappedComponentName}`
 
     const Connect = defineComponent({
-      name: displayName,
+      name: componentName,
 
       setup(props, context) {
         const instance = getCurrentInstance()!
 
-        // Vue needs to resolve the value of props through "options.props",
-        // here is to support the case of not passing in "options.props"
-        const ownProps = shallowReactive({}) as OwnProps
-        const { attrs, listeners } = context as any as {
-          attrs: Record<string, any>
-          listeners: Record<string, Function | Function[]> // for compat Vue2
-        }
-        watchEffect(
-          () => {
-            Object.assign(ownProps as any, attrs, props)
-          },
-          {
-            flush: 'pre'
-          }
-        )
+        const ownProps = useProps<OwnProps>(props, context)
+        const statePropsRef = useStateProps<StateProps, OwnProps>(mapStateProps, ownProps, instance)
+        const staticProps =
+          typeof mapStaticProps === 'function' ? mapStaticProps(ownProps, instance) : undefined
 
-        let _mapStateProps = mapStateProps as MapStateProps<StateProps, OwnProps>
-        const stateProps =
-          typeof mapStateProps === 'function' &&
-          computed(() => {
-            const stateProps = _mapStateProps(ownProps, instance)
-            if (typeof stateProps === 'function') {
-              _mapStateProps = stateProps as MapStateProps<StateProps, OwnProps>
-              return _mapStateProps(ownProps, instance)
-            }
-            return stateProps
-          })
-        // @ts-check: keep call logic of mapStateProps
-        if (stateProps) {
-          stateProps.value
-        }
-
-        const staticProps = <StaticProps>(
-          (typeof mapStaticProps === 'function' ? mapStaticProps(ownProps, instance) : {})
-        )
-
-        const _mergeProps = typeof mergeProps === 'function' ? mergeProps : defaultMergeProps
+        const mergeProps = typeof userMergeProps === 'function' ? userMergeProps : defaultMergeProps
         const mergedProps = computed(() => {
-          const statePropsValue = (stateProps ? stateProps.value : null) as StateProps
-          return _mergeProps(statePropsValue, staticProps, ownProps, instance)
+          return mergeProps(
+            statePropsRef?.value as StateProps,
+            staticProps as StaticProps,
+            ownProps,
+            instance
+          )
         })
 
         return () => {
@@ -146,10 +117,16 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
 
           let vnode: VNode | undefined = undefined
           if (isVue2) {
-            const children = (instance.proxy as any).$vnode
-            const finalProps = { ...children.data, attrs: mergedProps.value, on: listeners }
+            const realInstance = instance.proxy
+            const { props: _, ...inheritProps } = realInstance.$vnode.data || {}
+            const finalProps = {
+              ...inheritProps,
+              attrs: mergedProps.value,
+              on: context.listeners,
+              scopedSlots: realInstance.$scopedSlots
+            } as any
 
-            if (isVue2 && typeof component === 'object') {
+            if (typeof component === 'object') {
               // @ts-ignore: Vue2's `h` doesn't process vnode
               const emptyVNode = h()
               if (component instanceof emptyVNode.constructor) {
@@ -161,8 +138,8 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
               vnode = h(component as any, finalProps)
             }
           } else {
-            const children = instance.vnode.children as any
-            vnode = h(component as any, mergedProps.value as any, children)
+            const children = instance.vnode.children
+            vnode = h(component as any, mergedProps.value, children)
           }
 
           return forwardRef(vnode)
