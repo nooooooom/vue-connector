@@ -92,6 +92,8 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
     const Connect = defineComponent({
       name: componentName,
 
+      inheritAttrs: false,
+
       setup(props, context) {
         const instance = getCurrentInstance()!
 
