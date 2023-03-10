@@ -10,10 +10,10 @@ importers:
       typescript: ^4.9.4
       vitest: ^0.28.3
       vue: ^3.2.47
-      vue-forward-ref: ^0.0.8
+      vue-forward-ref: ^0.0.9
       vue2: npm:vue@^2.7.0
     dependencies:
-      vue-forward-ref: 0.0.8_hmuptsblhheur2tugfgucj7gc4
+      vue-forward-ref: 0.0.9_hmuptsblhheur2tugfgucj7gc4
     devDependencies:
       bumpp: 8.2.1
       jsdom: 21.1.0
@@ -2083,8 +2083,8 @@ packages:
         optional: true
     dev: true
 
-  /vue-forward-ref/0.0.8_hmuptsblhheur2tugfgucj7gc4:
-    resolution: {integrity: sha512-XMqnSLrjI3ThCtz3a3NGVo3YMua2Mkf4b11ksKGNzyGoY1pTpQTIaUMYgqFTNgt8PPd7lKwkWIC40XfPthID1A==}
+  /vue-forward-ref/0.0.9_hmuptsblhheur2tugfgucj7gc4:
+    resolution: {integrity: sha512-ii0OYtfhputxRtDFzfrtE3pPOBBxzmVNuzy/1Vh5RGXCP9vBJ7vQMHKS0IHVB5fMkSDB9S6oIUgodJaGGp3f7g==}
     peerDependencies:
       typescript: '>=4.4.4'
       vue: ^2.7.0 || ^3.2.0
