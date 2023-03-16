@@ -29,7 +29,7 @@ export function useStateProps<StateProps = {}, OwnProps = {}>(
   return computed(() => {
     if (firstStateProps !== EMPTY_PROPS) {
       firstStateProps = EMPTY_PROPS
-      return firstStateProps
+      return mapStateProps
     }
     return mapStatePropsFactory(ownProps, instance) as StateProps
   })
