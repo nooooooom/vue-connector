@@ -1,4 +1,4 @@
-import type { Component, DefineComponent, getCurrentInstance, VNode } from 'vue'
+import { Component, DefineComponent, ExtractPropTypes, getCurrentInstance, VNode } from 'vue'
 
 export type ComponentType<Props = any> =
   | string
@@ -11,6 +11,10 @@ export type ComponentType<Props = any> =
 
 // for compatible with Vue2 in type naming
 export type ComponentInternalInstance = NonNullable<ReturnType<typeof getCurrentInstance>>
+
+export type NormalizeProps<Props> = NonNullable<Props> extends never ? {} : NonNullable<Props>
+
+export type NormalizeStateProps<Props> = Props extends () => infer S ? S : Props
 
 export type MapStateProps<StateProps, OwnProps> = (
   ownProps: OwnProps,
@@ -34,8 +38,12 @@ export type MergeProps<StateProps, StaticProps, OwnProps, MergedProps> = (
   instance: ComponentInternalInstance
 ) => MergedProps
 
-export type ConnectedComponent<Props> = Component<Props>
+export type ConnectedComponent<Props> = DefineComponent<Props> | Component<Props>
+
+export type ExtractComponentProps<T> = T extends ComponentType<infer Props> ? Props : {}
 
 export type Connector<InjectedProps, NeedsProps> = <C extends ComponentType<NeedsProps>>(
   component: C
-) => ConnectedComponent<InjectedProps & Omit<NeedsProps, keyof InjectedProps>>
+) => ConnectedComponent<
+  Partial<InjectedProps> & ExtractPropTypes<Omit<ExtractComponentProps<C>, keyof InjectedProps>>
+>

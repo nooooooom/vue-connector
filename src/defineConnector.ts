@@ -16,7 +16,9 @@ import {
   MapStateProps,
   MapStatePropsFactory,
   MapStaticProps,
-  MergeProps
+  MergeProps,
+  NormalizeProps,
+  NormalizeStateProps
 } from './types'
 
 const isVue2 = +version.split('.')[0] !== 3
@@ -40,19 +42,28 @@ export function defineConnector<
 // overload 1: mapStateProps only
 export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}>(
   mapStateProps: MapStateProps<StateProps, OwnProps> | MapStatePropsFactory<StateProps, OwnProps>
-): Connector<StateProps & StaticProps, OwnProps>
+): Connector<
+  NormalizeProps<NormalizeStateProps<StateProps>> & NormalizeProps<StaticProps>,
+  OwnProps
+>
 
 // overload 2: mapStaticProps only
 export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}>(
   mapStateProps: null | undefined,
   mapStaticProps: MapStaticProps<StaticProps, OwnProps>
-): Connector<StateProps & StaticProps, OwnProps>
+): Connector<
+  NormalizeProps<NormalizeStateProps<StateProps>> & NormalizeProps<StaticProps>,
+  OwnProps
+>
 
 // overload 3: mapStateProps and mapStaticProps
 export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}>(
   mapStateProps: MapStateProps<StateProps, OwnProps> | MapStatePropsFactory<StateProps, OwnProps>,
   mapStaticProps: MapStaticProps<StaticProps, OwnProps>
-): Connector<StateProps & StaticProps, OwnProps>
+): Connector<
+  NormalizeProps<NormalizeStateProps<StateProps>> & NormalizeProps<StaticProps>,
+  OwnProps
+>
 
 // overload 4: mergeProps only
 export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, MergedProps = {}>(
@@ -65,7 +76,7 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
 export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, MergedProps = {}>(
   mapStateProps: MapStateProps<StateProps, OwnProps> | MapStatePropsFactory<StateProps, OwnProps>,
   mapStaticProps: null | undefined,
-  mergeProps: MergeProps<StateProps, StaticProps, OwnProps, MergedProps>
+  mergeProps: MergeProps<NormalizeStateProps<StateProps>, StaticProps, OwnProps, MergedProps>
 ): Connector<MergedProps, OwnProps>
 
 // overload 6: mapStaticProps and mergeProps
