@@ -11,7 +11,7 @@ import { forwardRef } from 'vue-forward-ref'
 import { useProps } from './composables/useProps'
 import { useStateProps } from './composables/useStateProps'
 import {
-  ComponentType,
+  ComponentCreationType,
   Connector,
   MapStateProps,
   MapStatePropsFactory,
@@ -22,6 +22,10 @@ import {
 } from './types'
 
 const isVue2 = +version.split('.')[0] !== 3
+
+function isDefineComponent(component: ComponentCreationType): component is DefineComponent {
+  return !!component && typeof component === 'object'
+}
 
 function defaultMergeProps<StateProps, StaticProps, OwnProps, MergedProps>(
   stateProps: StateProps,
@@ -96,8 +100,8 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
   mapStaticProps?: MapStaticProps<StaticProps, OwnProps> | null | undefined,
   userMergeProps?: MergeProps<StateProps, StaticProps, OwnProps, MergedProps> | null | undefined
 ): unknown {
-  return (component: ComponentType) => {
-    const wrappedComponentName = (component as DefineComponent).name || 'Component'
+  return (component: ComponentCreationType) => {
+    const wrappedComponentName = (isDefineComponent(component) && component.name) || 'Component'
     const componentName = `Connect${wrappedComponentName}`
 
     const Connect = defineComponent({
@@ -141,8 +145,8 @@ export function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}
 
             if (typeof component === 'object') {
               // @ts-ignore: Vue2's `h` doesn't process vnode
-              const emptyVNode = h()
-              if (component instanceof emptyVNode.constructor) {
+              const EmptyVNode = h()
+              if (component instanceof EmptyVNode.constructor) {
                 vnode = component as VNode
                 ;(vnode as any).data = finalProps
               }

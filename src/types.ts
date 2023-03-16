@@ -1,6 +1,6 @@
 import { Component, DefineComponent, ExtractPropTypes, getCurrentInstance, VNode } from 'vue'
 
-export type ComponentType<Props = any> =
+export type ComponentCreationType<Props = any> =
   | string
   | Component<Props>
   | DefineComponent<Props>
@@ -40,11 +40,11 @@ export type MergeProps<StateProps, StaticProps, OwnProps, MergedProps> = (
 
 export type ConnectedComponent<Props> = DefineComponent<Props>
 
-export type ExtractComponentProps<T> = T extends ComponentType<infer Props>
+export type ExtractComponentProps<T> = T extends ComponentCreationType<infer Props>
   ? ExtractPropTypes<Props>
   : {}
 
-export type Connector<InjectedProps, NeedsProps> = <C extends ComponentType<NeedsProps>>(
+export type Connector<InjectedProps, NeedsProps> = <C extends ComponentCreationType<NeedsProps>>(
   component: C
 ) => ConnectedComponent<
   Partial<InjectedProps> & Omit<ExtractComponentProps<C>, keyof InjectedProps>
