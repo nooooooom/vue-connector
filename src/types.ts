@@ -38,12 +38,14 @@ export type MergeProps<StateProps, StaticProps, OwnProps, MergedProps> = (
   instance: ComponentInternalInstance
 ) => MergedProps
 
-export type ConnectedComponent<Props> = DefineComponent<Props> | Component<Props>
+export type ConnectedComponent<Props> = DefineComponent<Props>
 
-export type ExtractComponentProps<T> = T extends ComponentType<infer Props> ? Props : {}
+export type ExtractComponentProps<T> = T extends ComponentType<infer Props>
+  ? ExtractPropTypes<Props>
+  : {}
 
 export type Connector<InjectedProps, NeedsProps> = <C extends ComponentType<NeedsProps>>(
   component: C
 ) => ConnectedComponent<
-  Partial<InjectedProps> & ExtractPropTypes<Omit<ExtractComponentProps<C>, keyof InjectedProps>>
+  Partial<InjectedProps> & Omit<ExtractComponentProps<C>, keyof InjectedProps>
 >
