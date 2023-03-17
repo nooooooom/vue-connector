@@ -38,6 +38,8 @@ export type MergeProps<StateProps, StaticProps, OwnProps, MergedProps> = (
   instance: ComponentInternalInstance
 ) => MergedProps
 
+export type ScopedSlots = Record<string, (...args: any[]) => any>
+
 export type ConnectedComponent<Props> = DefineComponent<Props>
 
 export type ExtractComponentProps<T> = T extends ComponentCreationType<infer Props>

@@ -18,7 +18,6 @@ export function useProps<T>(props: Record<string, any>, { attrs }: SetupContext)
     for (const attr of Object.keys(attrs)) {
       asProps[camelize(attr)] = attrs[attr]
     }
-
     return Object.assign(asProps, attrs)
   })
 
