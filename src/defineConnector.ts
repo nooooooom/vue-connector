@@ -118,7 +118,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           return () => {
             const props = componentProps.value
             const mergedProps = {
-              attrs: props,
+              attrs: { ...props },
               on: mergeListeners((context as any).listeners, listenerProps.value),
               scopedSlots: {
                 ...(instance.proxy as any).$scopedSlots,
@@ -148,7 +148,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
         }
 
         return () => {
-          const props = componentProps.value
+          const props = { ...componentProps.value }
           const children = instance.vnode.children
           const slots = children
             ? instance.vnode.shapeFlag & ShapeFlags.SLOTS_CHILDREN
