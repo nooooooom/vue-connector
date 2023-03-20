@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "private": "true",
   "scripts": {
-    "dev": "vite"
+    "play": "vite"
   },
   "devDependencies": {
     "pinia": "^2.0.30",
