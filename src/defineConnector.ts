@@ -1,14 +1,14 @@
+import { computed, DefineComponent, defineComponent, getCurrentInstance, h, VNode } from 'vue'
+import { forwardRef } from 'vue-forward-ref'
 import {
   cloneVNode,
-  computed,
-  DefineComponent,
-  defineComponent,
-  getCurrentInstance,
-  h,
-  VNode
-} from 'vue'
-import { forwardRef } from 'vue-forward-ref'
-import { isVue2, useProps } from 'vue-lib-toolkit'
+  isEventKey,
+  isVue2,
+  mergeListeners,
+  ShapeFlags,
+  toListenerKey,
+  useProps
+} from 'vue-lib-toolkit'
 import { SpecifyProps, specifyPropsValues } from './specifyProps'
 import {
   ComponentCreationType,
@@ -65,7 +65,8 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
         const initializedStateProps = normalizedMapStateProps(ownProps, instance)
         const stateProps =
           typeof initializedStateProps === 'function'
-            ? computed(() =>
+            ? // factory
+              computed(() =>
                 (initializedStateProps as MapStateProps<StateProps, OwnProps>)(ownProps, instance)
               )
             : computed(() => normalizedMapStateProps(ownProps, instance) as StateProps)
@@ -78,7 +79,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
         const componentProps = computed(() => {
           // TODO: Changes to specify props also effect the component props
-          const props = { ...mergedProps.value } as any
+          const props = { ...mergedProps.value } as Record<string, any>
 
           for (const s of specifyPropsValues) {
             delete props[s]
@@ -87,9 +88,10 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           return props
         })
 
+        // { scopedSlots, ... }
         const specifyProps = computed(() => {
-          const mergedPropsValue = mergedProps.value as any
-          const props = {} as any
+          const mergedPropsValue = mergedProps.value as Record<string, any>
+          const props = {} as Record<string, any>
 
           for (const s of specifyPropsValues) {
             props[s] = mergedPropsValue[s]
@@ -98,50 +100,68 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           return props
         })
 
-        return () => {
-          if (!component) {
-            return
-          }
+        if (isVue2) {
+          // { onEvent, ... }
+          const listenerProps = computed(() => {
+            const props = componentProps.value
+            const listenerProps = {} as Record<string, any>
 
-          const specifyScopedSlots = specifyProps.value[SpecifyProps.SCOPED_SLOTS]
-
-          let vnode: VNode | undefined = undefined
-          if (isVue2) {
-            const compatInstance = instance.proxy as any
-            const inheritProps = compatInstance.$vnode.data || {}
-            const props = {
-              ...inheritProps,
-              props: {},
-              attrs: componentProps.value,
-              on: (context as any).listeners,
-              scopedSlots: {
-                ...compatInstance.$scopedSlots,
-                ...specifyScopedSlots
+            for (const prop in props) {
+              if (isEventKey(prop)) {
+                listenerProps[toListenerKey(prop)] = props[prop]
               }
             }
 
+            return listenerProps
+          })
+
+          return () => {
+            const props = componentProps.value
+            const mergedProps = {
+              attrs: props,
+              on: mergeListeners((context as any).listeners, listenerProps.value),
+              scopedSlots: {
+                ...(instance.proxy as any).$scopedSlots,
+                ...specifyProps.value[SpecifyProps.SCOPED_SLOTS]
+              },
+              slots: {
+                ...(instance.proxy as any).$slots,
+                ...specifyProps.value[SpecifyProps.SLOTS]
+              }
+            }
+
+            let vnode: VNode | undefined
             if (typeof component === 'object') {
               // @ts-ignore: Vue2's `h` doesn't process vnode
               const EmptyVNode = h()
               if (component instanceof EmptyVNode.constructor) {
-                vnode = cloneVNode(component as VNode, props)
+                vnode = cloneVNode(component as VNode, mergedProps)
               }
             }
 
             if (!vnode) {
-              vnode = h(component as any, props)
-            }
-          } else {
-            const children = instance.vnode.children
-            const scopedSlots = {
-              ...(children && typeof children === 'object'
-                ? children
-                : { default: () => children }),
-              ...specifyScopedSlots
+              vnode = h(component as any, mergedProps)
             }
 
-            vnode = h(component as any, componentProps.value, scopedSlots)
+            return forwardRef(vnode)
           }
+        }
+
+        return () => {
+          const props = componentProps.value
+          const children = instance.vnode.children
+          const slots = children
+            ? instance.vnode.shapeFlag & ShapeFlags.SLOTS_CHILDREN
+              ? (children as any)
+              : {
+                  default: () => children
+                }
+            : null
+
+          const vnode = h(component as any, props, {
+            ...slots,
+            ...specifyProps.value[SpecifyProps.SCOPED_SLOTS]
+          })
 
           return forwardRef(vnode)
         }
