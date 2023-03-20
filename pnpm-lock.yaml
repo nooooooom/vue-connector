@@ -11,9 +11,11 @@ importers:
       vitest: ^0.28.3
       vue: ^3.2.0
       vue-forward-ref: ^0.0.10
+      vue-lib-toolkit: ^0.0.10
       vue2: npm:vue@^2.7.0
     dependencies:
       vue-forward-ref: 0.0.10_hmuptsblhheur2tugfgucj7gc4
+      vue-lib-toolkit: 0.0.10_hmuptsblhheur2tugfgucj7gc4
     devDependencies:
       bumpp: 8.2.1
       jsdom: 21.1.0
@@ -2083,6 +2085,21 @@ packages:
         optional: true
     dev: true
 
+  /vue-demi/0.13.11_vue@3.2.47:
+    resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.2.47
+    dev: false
+
   /vue-forward-ref/0.0.10_hmuptsblhheur2tugfgucj7gc4:
     resolution: {integrity: sha512-VwUx/ZHtoOCrX9GXRlb02PYbbHzi2NzNmdph8w5RNO4090AbDSNWySbHfcF8Q6yehpxQGtg3j2BgFvJutVCxig==}
     peerDependencies:
@@ -2095,6 +2112,53 @@ packages:
       '@vue/shared': 3.2.47
       typescript: 4.9.5
       vue: 3.2.47
+    dev: false
+
+  /vue-lib-toolkit/0.0.10_hmuptsblhheur2tugfgucj7gc4:
+    resolution: {integrity: sha512-ILB+YDpfF6p765Bv8tj+90XOz85QgJRUDq7HxYA9YNHlDK7xr1Gjy+oaKFbFt3nv6s6GfIpeWK66wqv+njLsmQ==}
+    peerDependencies:
+      typescript: '>=4.4.4'
+      vue: '>=2.7.0 || ^3.2.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@vue/shared': 3.2.47
+      typescript: 4.9.5
+      vue: 3.2.47
+      vue-module-demi: 0.0.4_hmuptsblhheur2tugfgucj7gc4
+      vue-reactivity-fantasy: 0.0.7_hmuptsblhheur2tugfgucj7gc4
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+    dev: false
+
+  /vue-module-demi/0.0.4_hmuptsblhheur2tugfgucj7gc4:
+    resolution: {integrity: sha512-kVvwiLk6wh4/7SGAalDRCj64hBKu7rKRLkVc/MFTvuY7LFWIkwL/dTm8Y+y9dp0Yp0Djwj4eUmdP4DTZsdOkyw==}
+    requiresBuild: true
+    peerDependencies:
+      typescript: '>=4.4.4'
+      vue: '>=2.7.0 || ^3.2.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 4.9.5
+      vue: 3.2.47
+    dev: false
+
+  /vue-reactivity-fantasy/0.0.7_hmuptsblhheur2tugfgucj7gc4:
+    resolution: {integrity: sha512-39A3zWAPgYUTiDHOwhmgnF50PTxsFxt0H5Dxnft9XOzrLzpe6kQfL40KlPO9El5CdwJjmB7v2BhXdBfiYsdVxg==}
+    peerDependencies:
+      '@vue/composition-api': ^1.4.0
+      typescript: '>=4.4.4'
+      vue: ^2.6.14 || ^3.2.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 4.9.5
+      vue: 3.2.47
+      vue-demi: 0.13.11_vue@3.2.47
     dev: false
 
   /vue/2.7.14:
