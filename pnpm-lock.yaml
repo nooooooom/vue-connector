@@ -11,11 +11,11 @@ importers:
       vitest: ^0.28.3
       vue: ^3.2.0
       vue-forward-ref: ^0.0.10
-      vue-lib-toolkit: ^0.0.10
+      vue-lib-toolkit: ^0.0.13
       vue2: npm:vue@^2.7.0
     dependencies:
       vue-forward-ref: 0.0.10_hmuptsblhheur2tugfgucj7gc4
-      vue-lib-toolkit: 0.0.10_hmuptsblhheur2tugfgucj7gc4
+      vue-lib-toolkit: 0.0.13_hmuptsblhheur2tugfgucj7gc4
     devDependencies:
       bumpp: 8.2.1
       jsdom: 21.1.0
@@ -2114,8 +2114,8 @@ packages:
       vue: 3.2.47
     dev: false
 
-  /vue-lib-toolkit/0.0.10_hmuptsblhheur2tugfgucj7gc4:
-    resolution: {integrity: sha512-ILB+YDpfF6p765Bv8tj+90XOz85QgJRUDq7HxYA9YNHlDK7xr1Gjy+oaKFbFt3nv6s6GfIpeWK66wqv+njLsmQ==}
+  /vue-lib-toolkit/0.0.13_hmuptsblhheur2tugfgucj7gc4:
+    resolution: {integrity: sha512-FwAG8j6B0X91OqoAHTm3E5axOvYQqmLpgdoHmL1OWAeLwp/L3u3t80kK/pV6irZp570hMQcByNe5Ajxt0FvMtw==}
     peerDependencies:
       typescript: '>=4.4.4'
       vue: '>=2.7.0 || ^3.2.0'
