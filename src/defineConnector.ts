@@ -18,7 +18,8 @@ import {
   MapStateProps,
   MapStatePropsFactory,
   MapStaticProps,
-  MergeProps
+  MergeProps,
+  Props
 } from './types'
 
 function normalizeFunction<T extends (...args: any[]) => any>(
@@ -50,7 +51,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
   mapStaticProps?: MapStaticProps<StaticProps, OwnProps> | null | undefined,
   mergeProps?: MergeProps<StateProps, StaticProps, OwnProps, MergedProps> | null | undefined
 ) {
-  // normalize
+  // Normalize
   const normalizedMapStateProps = normalizeFunction<
     MapStateProps<StateProps, OwnProps> | MapStatePropsFactory<StateProps, OwnProps>
   >(mapStateProps)
@@ -85,54 +86,59 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           normalizedMergeProps(stateProps.value, staticProps, ownProps, instance)
         )
 
-        // TODO: Changes to specify props also effect the component props
-        const componentProps = computed(() => {
-          const props = { ...mergedProps.value } as Record<string, any>
+        // Specify props
+        const slotsProps = computed(() => mergedProps.value[SpecifyProps.SCOPED_SLOTS])
+        const classAndStyleProps = computed(() => {
+          const { value: mergedPropsValue } = mergedProps
+          const props = {} as Props
 
-          for (const s of SpecifyPropsValues) {
-            delete props[s]
+          const klass = mergedClass(
+            mergedPropsValue[SpecifyProps.CLASS],
+            mergedPropsValue[SpecifyProps.STATIC_CLASS]
+          )
+          if (klass) {
+            props.class = klass
+          }
+
+          const style = mergedStyle(
+            mergedPropsValue[SpecifyProps.STYLE],
+            mergedPropsValue[SpecifyProps.STATIC_STYLE]
+          )
+          if (style) {
+            props.style = style
           }
 
           return props
         })
 
-        const slotsProps = computed(() => mergedProps.value[SpecifyProps.SCOPED_SLOTS])
-        const classAndStyleProps = computed(() => {
-          const { value: mergedPropsValue } = mergedProps
-          return {
-            class: mergedClass(
-              componentProps.value.class,
-              mergedPropsValue[SpecifyProps.CLASS],
-              mergedPropsValue[SpecifyProps.STATIC_CLASS]
-            ),
-            style: mergedStyle(
-              componentProps.value.style,
-              mergedPropsValue[SpecifyProps.STYLE],
-              mergedPropsValue[SpecifyProps.STATIC_STYLE]
-            )
+        const getComponentProps = () => {
+          const props = { ...mergedProps.value }
+          for (const s of SpecifyPropsValues) {
+            delete props[s]
           }
-        })
+          return props
+        }
 
         if (isVue2) {
-          // { onEvent, ... }
-          const listenerProps = computed(() => {
-            const props = componentProps.value
-            const listenerProps = {} as Record<string, any>
+          return () => {
+            const componentProps = getComponentProps()
 
-            for (const prop in props) {
+            const props = {} as Props
+            const listenersProps = {} as Props
+
+            for (const prop in componentProps) {
+              const value = componentProps[prop]
               if (isEventKey(prop)) {
-                listenerProps[toListenerKey(prop)] = props[prop]
+                // onEvent -> event
+                listenersProps[toListenerKey(prop)] = value
+              } else {
+                props[prop] = value
               }
             }
 
-            return listenerProps
-          })
-
-          return () => {
-            const props = componentProps.value
             const finalProps = {
               attrs: { ...props },
-              on: mergeListeners((context as any).listeners, listenerProps.value),
+              on: mergeListeners((context as any).listeners, listenersProps),
               scopedSlots: {
                 ...(instance.proxy as any).$scopedSlots,
                 ...slotsProps.value
@@ -162,7 +168,8 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
         }
 
         return () => {
-          const props = { ...componentProps.value, ...classAndStyleProps.value }
+          const props = { ...getComponentProps(), ...classAndStyleProps.value }
+
           const children = instance.vnode.children
           const slots = children
             ? instance.vnode.shapeFlag & ShapeFlags.SLOTS_CHILDREN

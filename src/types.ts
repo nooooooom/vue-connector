@@ -12,6 +12,8 @@ export type ComponentCreationType<Props = any> =
   | Function // FunctionalComponent
   | VNode
 
+export type Props = Record<string, any>
+
 export type NormalizeProps<Props> = NonNullable<Props> extends never ? {} : NonNullable<Props>
 
 export type NormalizeStateProps<Props> = Props extends () => infer S ? S : Props

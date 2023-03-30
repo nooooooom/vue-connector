@@ -6,9 +6,21 @@ export const SpecifyProps = {
    * the wrapper component is similar to `this.$slots.default`, otherwise, only `SCOPED_SLOTS` are recommended.
    */
   SLOTS: '@@vue-connector/VUE2_SLOTS',
+  /**
+   * NOTE: `STATIC_CLASS` is an escape hatch compatible with some components of Vue2.
+   */
   STATIC_CLASS: '@@vue-connector/VUE2_STATIC_CLASS',
+  /**
+   * NOTE: `CLASS` is an escape hatch compatible with some components of Vue2.
+   */
   CLASS: '@@vue-connector/VUE2_CLASS',
+  /**
+   * NOTE: `STATIC_STYLE` is an escape hatch compatible with some components of Vue2.
+   */
   STATIC_STYLE: '@@vue-connector/VUE2_STATIC_STYLE',
+  /**
+   * NOTE: `STYLE` is an escape hatch compatible with some components of Vue2.
+   */
   STYLE: '@@vue-connector/VUE2_STYLE'
 } as const
 
