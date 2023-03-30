@@ -4,12 +4,14 @@ import {
   cloneVNode,
   isEventKey,
   isVue2,
+  mergedClass,
+  mergedStyle,
   mergeListeners,
   ShapeFlags,
   toListenerKey,
   useProps
 } from 'vue-lib-toolkit'
-import { SpecifyProps, specifyPropsValues } from './specifyProps'
+import { SpecifyProps, SpecifyPropsValues } from './specifyProps'
 import {
   ComponentCreationType,
   DefineConnector,
@@ -18,6 +20,13 @@ import {
   MapStaticProps,
   MergeProps
 } from './types'
+
+function normalizeFunction<T extends (...args: any[]) => any>(
+  func: unknown,
+  candidate: Function = () => null
+): T {
+  return (typeof func === 'function' ? func : candidate) as T
+}
 
 function defaultMergeProps<StateProps, StaticProps, OwnProps, MergedProps>(
   stateProps: StateProps,
@@ -42,18 +51,19 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
   mergeProps?: MergeProps<StateProps, StaticProps, OwnProps, MergedProps> | null | undefined
 ) {
   // normalize
-  const normalizedMapStateProps =
-    typeof mapStateProps === 'function' ? mapStateProps : () => null as StateProps
+  const normalizedMapStateProps = normalizeFunction<
+    MapStateProps<StateProps, OwnProps> | MapStatePropsFactory<StateProps, OwnProps>
+  >(mapStateProps)
   const normalizedMapStaticProps =
-    typeof mapStaticProps === 'function' ? mapStaticProps : () => null as StaticProps
-  const normalizedMergeProps = typeof mergeProps === 'function' ? mergeProps : defaultMergeProps
+    normalizeFunction<MapStaticProps<StaticProps, OwnProps>>(mapStaticProps)
+  const normalizedMergeProps = normalizeFunction(mergeProps, defaultMergeProps)
 
   return (component: ComponentCreationType) => {
     const wrappedComponentName = (isDefineComponent(component) && component.name) || 'Component'
-    const componentName = `Connect${wrappedComponentName}`
+    const connectComponentName = `Connect${wrappedComponentName}`
 
     const Connect = defineComponent({
-      name: componentName,
+      name: connectComponentName,
 
       inheritAttrs: false,
 
@@ -70,34 +80,37 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
                 (initializedStateProps as MapStateProps<StateProps, OwnProps>)(ownProps, instance)
               )
             : computed(() => normalizedMapStateProps(ownProps, instance) as StateProps)
-
         const staticProps = normalizedMapStaticProps(ownProps, instance)
-
         const mergedProps = computed(() =>
           normalizedMergeProps(stateProps.value, staticProps, ownProps, instance)
         )
 
+        // TODO: Changes to specify props also effect the component props
         const componentProps = computed(() => {
-          // TODO: Changes to specify props also effect the component props
           const props = { ...mergedProps.value } as Record<string, any>
 
-          for (const s of specifyPropsValues) {
+          for (const s of SpecifyPropsValues) {
             delete props[s]
           }
 
           return props
         })
 
-        // { scopedSlots, ... }
-        const specifyProps = computed(() => {
-          const mergedPropsValue = mergedProps.value as Record<string, any>
-          const props = {} as Record<string, any>
-
-          for (const s of specifyPropsValues) {
-            props[s] = mergedPropsValue[s]
+        const slotsProps = computed(() => mergedProps.value[SpecifyProps.SCOPED_SLOTS])
+        const classAndStyleProps = computed(() => {
+          const { value: mergedPropsValue } = mergedProps
+          return {
+            class: mergedClass(
+              componentProps.value.class,
+              mergedPropsValue[SpecifyProps.CLASS],
+              mergedPropsValue[SpecifyProps.STATIC_CLASS]
+            ),
+            style: mergedStyle(
+              componentProps.value.style,
+              mergedPropsValue[SpecifyProps.STYLE],
+              mergedPropsValue[SpecifyProps.STATIC_STYLE]
+            )
           }
-
-          return props
         })
 
         if (isVue2) {
@@ -117,17 +130,18 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
           return () => {
             const props = componentProps.value
-            const mergedProps = {
+            const finalProps = {
               attrs: { ...props },
               on: mergeListeners((context as any).listeners, listenerProps.value),
               scopedSlots: {
                 ...(instance.proxy as any).$scopedSlots,
-                ...specifyProps.value[SpecifyProps.SCOPED_SLOTS]
+                ...slotsProps.value
               },
               slots: {
                 ...(instance.proxy as any).$slots,
-                ...specifyProps.value[SpecifyProps.SLOTS]
-              }
+                ...mergedProps.value[SpecifyProps.SLOTS]
+              },
+              ...classAndStyleProps.value
             }
 
             let vnode: VNode | undefined
@@ -135,12 +149,12 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               // @ts-ignore: Vue2's `h` doesn't process vnode
               const EmptyVNode = h()
               if (component instanceof EmptyVNode.constructor) {
-                vnode = cloneVNode(component as VNode, mergedProps)
+                vnode = cloneVNode(component as VNode, finalProps)
               }
             }
 
             if (!vnode) {
-              vnode = h(component as any, mergedProps)
+              vnode = h(component as any, finalProps)
             }
 
             return forwardRef(vnode)
@@ -148,7 +162,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
         }
 
         return () => {
-          const props = { ...componentProps.value }
+          const props = { ...componentProps.value, ...classAndStyleProps.value }
           const children = instance.vnode.children
           const slots = children
             ? instance.vnode.shapeFlag & ShapeFlags.SLOTS_CHILDREN
@@ -160,7 +174,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
           const vnode = h(component as any, props, {
             ...slots,
-            ...specifyProps.value[SpecifyProps.SCOPED_SLOTS]
+            ...slotsProps.value
           })
 
           return forwardRef(vnode)
