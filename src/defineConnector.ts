@@ -104,7 +104,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
             mergedPropsValue[SpecifyProps.STYLE],
             mergedPropsValue[SpecifyProps.STATIC_STYLE]
           )
-          if (style) {
+          if (style && (typeof style !== 'object' || Object.keys(style).length)) {
             props.style = style
           }
 
