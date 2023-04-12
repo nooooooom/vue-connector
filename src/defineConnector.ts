@@ -87,7 +87,6 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
         )
 
         // Specify props
-        const slotsProps = computed(() => mergedProps.value[SpecifyProps.SCOPED_SLOTS])
         const classAndStyleProps = computed(() => {
           const { value: mergedPropsValue } = mergedProps
           const props = {} as Props
@@ -144,20 +143,21 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               ...classAndStyleProps.value
             } as any
 
-            const scopedSlots = {
-              ...(instance.proxy as any).$scopedSlots,
-              ...slotsProps.value
+            // if the value of such props is empty, try not to assign
+            const strictProps = {
+              scopedSlots: {
+                ...(instance.proxy as any).$scopedSlots,
+                ...mergedProps.value[SpecifyProps.SCOPED_SLOTS]
+              },
+              slot: {
+                ...(instance.proxy as any).$slots,
+                ...mergedProps.value[SpecifyProps.SLOTS]
+              }
             }
-            if (Object.keys(scopedSlots).length) {
-              finalProps.scopedSlots = scopedSlots
-            }
-
-            const slots = {
-              ...(instance.proxy as any).$slots,
-              ...mergedProps.value[SpecifyProps.SLOTS]
-            }
-            if (Object.keys(slots).length) {
-              finalProps.slots = slots
+            for (const prop in strictProps) {
+              if (Object.keys(prop).length) {
+                finalProps[prop] = strictProps[prop as keyof typeof strictProps]
+              }
             }
 
             let vnode: VNode | undefined
@@ -189,7 +189,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
             : null
           const mergedSlots = {
             ...slots,
-            ...slotsProps.value
+            ...mergedProps.value[SpecifyProps.SCOPED_SLOTS]
           }
 
           const vnode = h(
