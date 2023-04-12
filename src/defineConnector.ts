@@ -93,6 +93,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           const props = {} as Props
 
           const klass = mergedClass(
+            mergedPropsValue.class,
             mergedPropsValue[SpecifyProps.CLASS],
             mergedPropsValue[SpecifyProps.STATIC_CLASS]
           )
@@ -101,6 +102,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           }
 
           const style = mergedStyle(
+            mergedPropsValue.style,
             mergedPropsValue[SpecifyProps.STYLE],
             mergedPropsValue[SpecifyProps.STATIC_STYLE]
           )
@@ -131,7 +133,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               if (isEventKey(prop)) {
                 // onEvent -> event
                 listenersProps[toListenerKey(prop)] = value
-              } else {
+              } else if (prop !== 'class' && prop !== 'style') {
                 props[prop] = value
               }
             }
@@ -139,15 +141,23 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
             const finalProps = {
               attrs: { ...props },
               on: mergeListeners((context as any).listeners, listenersProps),
-              scopedSlots: {
-                ...(instance.proxy as any).$scopedSlots,
-                ...slotsProps.value
-              },
-              slots: {
-                ...(instance.proxy as any).$slots,
-                ...mergedProps.value[SpecifyProps.SLOTS]
-              },
               ...classAndStyleProps.value
+            } as any
+
+            const scopedSlots = {
+              ...(instance.proxy as any).$scopedSlots,
+              ...slotsProps.value
+            }
+            if (Object.keys(scopedSlots).length) {
+              finalProps.scopedSlots = scopedSlots
+            }
+
+            const slots = {
+              ...(instance.proxy as any).$slots,
+              ...mergedProps.value[SpecifyProps.SLOTS]
+            }
+            if (Object.keys(slots).length) {
+              finalProps.slots = slots
             }
 
             let vnode: VNode | undefined
@@ -169,7 +179,6 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
         return () => {
           const props = { ...getComponentProps(), ...classAndStyleProps.value }
-
           const children = instance.vnode.children
           const slots = children
             ? instance.vnode.shapeFlag & ShapeFlags.SLOTS_CHILDREN
@@ -178,11 +187,16 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
                   default: () => children
                 }
             : null
-
-          const vnode = h(component as any, props, {
+          const mergedSlots = {
             ...slots,
             ...slotsProps.value
-          })
+          }
+
+          const vnode = h(
+            component as any,
+            props,
+            Object.keys(mergedSlots).length ? mergedSlots : null
+          )
 
           return forwardRef(vnode)
         }
