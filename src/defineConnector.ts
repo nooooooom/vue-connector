@@ -29,10 +29,6 @@ function normalizeFunction<T extends (...args: any[]) => any>(
   return (typeof func === 'function' ? func : candidate) as T
 }
 
-function keyLength(object: any) {
-  return Object.keys(object).length
-}
-
 function defaultMergeProps<StateProps, StaticProps, OwnProps, MergedProps>(
   stateProps: StateProps,
   staticProps: StaticProps,
@@ -147,21 +143,21 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               ...classAndStyleProps.value
             } as any
 
-            const scopedSlots = {
-              ...(instance.proxy as any).$scopedSlots,
-              ...mergedProps.value[SpecifyProps.SCOPED_SLOTS]
+            // if the value of such props is empty, try not to assign
+            const strictProps = {
+              scopedSlots: {
+                ...(instance.proxy as any).$scopedSlots,
+                ...mergedProps.value[SpecifyProps.SCOPED_SLOTS]
+              },
+              slot: {
+                ...(instance.proxy as any).$slots,
+                ...mergedProps.value[SpecifyProps.SLOTS]
+              }
             }
-            const slots = {
-              ...(instance.proxy as any).$slots,
-              ...mergedProps.value[SpecifyProps.SLOTS]
-            }
-            if (
-              !keyLength(mergedProps.value[SpecifyProps.SCOPED_SLOTS]) &&
-              (keyLength(mergedProps.value[SpecifyProps.SLOTS]) || keyLength(slots))
-            ) {
-              finalProps.slot = slots
-            } else if (scopedSlots) {
-              finalProps.scopedSlots = scopedSlots
+            for (const prop in strictProps) {
+              if (Object.keys(prop).length) {
+                finalProps[prop] = strictProps[prop as keyof typeof strictProps]
+              }
             }
 
             let vnode: VNode | undefined
