@@ -49,7 +49,8 @@ export type ExtractComponentPropTypes<T> = T extends ComponentCreationType<infer
   : {}
 
 export type Connector<InjectedProps, NeedsProps> = <C extends ComponentCreationType<NeedsProps>>(
-  component: C
+  component: C,
+  propsDefinition: Record<string, any>
 ) => ConnectedComponent<
   Partial<InjectedProps> &
     NeedsProps &
