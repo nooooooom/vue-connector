@@ -1,6 +1,6 @@
 {
   "name": "vue-connector",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "author": "nooooooom <https://github.com/nooooooom>",
   "description": "🪡 Connect anything to your vue components",
   "main": "dist/index.js",
