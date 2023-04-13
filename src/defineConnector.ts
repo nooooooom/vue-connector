@@ -11,7 +11,6 @@ import {
   toListenerKey,
   useProps
 } from 'vue-lib-toolkit'
-import { SpecifyProps, SpecifyPropsValues } from './specifyProps'
 import {
   ComponentCreationType,
   DefineConnector,
@@ -19,15 +18,10 @@ import {
   MapStatePropsFactory,
   MapStaticProps,
   MergeProps,
+  PreserveProps,
   Props
 } from './types'
-
-function normalizeFunction<T extends (...args: any[]) => any>(
-  func: unknown,
-  candidate: Function = () => null
-): T {
-  return (typeof func === 'function' ? func : candidate) as T
-}
+import { isDefineComponent, normalizeFunction, normalizeSlots } from './utils'
 
 function defaultMergeProps<StateProps, StaticProps, OwnProps, MergedProps>(
   stateProps: StateProps,
@@ -35,10 +29,6 @@ function defaultMergeProps<StateProps, StaticProps, OwnProps, MergedProps>(
   ownProps: OwnProps
 ): MergedProps {
   return { ...ownProps, ...stateProps, ...staticProps } as MergedProps
-}
-
-function isDefineComponent(component: ComponentCreationType): component is DefineComponent {
-  return !!component && typeof component === 'object'
 }
 
 // implementation
@@ -59,7 +49,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
     normalizeFunction<MapStaticProps<StaticProps, OwnProps>>(mapStaticProps)
   const normalizedMergeProps = normalizeFunction(mergeProps, defaultMergeProps)
 
-  return (component: ComponentCreationType, propsDefinition: Record<string, any>) => {
+  return (component: ComponentCreationType, propsDefinition: Record<string, any> = {}) => {
     const wrappedComponentName = (isDefineComponent(component) && component.name) || 'Component'
     const connectComponentName = `Connect${wrappedComponentName}`
 
@@ -84,81 +74,62 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               )
             : computed(() => normalizedMapStateProps(ownProps, instance) as StateProps)
         const staticProps = normalizedMapStaticProps(ownProps, instance)
+
         const mergedProps = computed(() =>
           normalizedMergeProps(stateProps.value, staticProps, ownProps, instance)
         )
-
-        // Specify props
-        const classAndStyleProps = computed(() => {
-          const { value: mergedPropsValue } = mergedProps
-          const props = {} as Props
-
-          const klass = mergedClass(
-            mergedPropsValue.class,
-            mergedPropsValue[SpecifyProps.CLASS],
-            mergedPropsValue[SpecifyProps.STATIC_CLASS]
-          )
-          if (klass) {
-            props.class = klass
-          }
-
-          const style = mergedStyle(
-            mergedPropsValue.style,
-            mergedPropsValue[SpecifyProps.STYLE],
-            mergedPropsValue[SpecifyProps.STATIC_STYLE]
-          )
-          if (style && (typeof style !== 'object' || Object.keys(style).length)) {
-            props.style = style
-          }
-
-          return props
-        })
-
-        const getComponentProps = () => {
+        // omit ['class', 'style', '$$slots']
+        const componentProps = computed(() => {
           const props = { ...mergedProps.value }
-          for (const s of SpecifyPropsValues) {
+          for (const s of PreserveProps) {
             delete props[s]
           }
           return props
-        }
+        })
+
+        const slotProps = computed(() => normalizeSlots(mergedProps.value.$$slots))
+        const classAndStyleProps = computed(() => {
+          const { value: mergedPropsValue } = mergedProps
+          return {
+            class: mergedPropsValue.class,
+            style: mergedPropsValue.style
+          }
+        })
 
         if (isVue2) {
           return () => {
-            const componentProps = getComponentProps()
+            const { value: componentPropsValue } = componentProps
 
-            const props = {} as Props
+            const attrs = {} as Props
             const listenersProps = {} as Props
-
-            for (const prop in componentProps) {
-              const value = componentProps[prop]
+            for (const prop in componentPropsValue) {
+              const value = componentPropsValue[prop]
               if (isEventKey(prop)) {
                 // onEvent -> event
                 listenersProps[toListenerKey(prop)] = value
-              } else if (prop !== 'class' && prop !== 'style') {
-                props[prop] = value
+              } else {
+                attrs[prop] = value
               }
             }
 
-            const finalProps = {
-              attrs: { ...props },
+            const props = {
+              attrs,
               on: mergeListeners((context as any).listeners, listenersProps),
               ...classAndStyleProps.value
             } as any
 
-            // if the value of such props is empty, try not to assign
-            const strictProps = {
-              scopedSlots: {
-                ...(instance.proxy as any).$scopedSlots,
-                ...mergedProps.value[SpecifyProps.SCOPED_SLOTS]
-              },
-              slot: {
-                ...(instance.proxy as any).$slots,
-                ...mergedProps.value[SpecifyProps.SLOTS]
-              }
-            }
-            for (const prop in strictProps) {
-              if (Object.keys(prop).length) {
-                finalProps[prop] = strictProps[prop as keyof typeof strictProps]
+            const { scoped, slots } = slotProps.value
+            if (slots) {
+              if (scoped) {
+                props.scopedSlots = {
+                  ...(instance.proxy as any).$scopedSlots,
+                  ...slots
+                }
+              } else {
+                props.slot = {
+                  ...(instance.proxy as any).$slots,
+                  ...slots
+                }
               }
             }
 
@@ -167,12 +138,12 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               // @ts-ignore: Vue2's `h` doesn't process vnode
               const EmptyVNode = h()
               if (component instanceof EmptyVNode.constructor) {
-                vnode = cloneVNode(component as VNode, finalProps)
+                vnode = cloneVNode(component as VNode, props)
               }
             }
 
             if (!vnode) {
-              vnode = h(component as any, finalProps)
+              vnode = h(component as any, props)
             }
 
             return forwardRef(vnode)
@@ -180,26 +151,28 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
         }
 
         return () => {
-          const props = { ...getComponentProps(), ...classAndStyleProps.value }
-          const children = instance.vnode.children
-          const slots = children
-            ? instance.vnode.shapeFlag & ShapeFlags.SLOTS_CHILDREN
-              ? (children as any)
-              : {
-                  default: () => children
-                }
-            : null
-          const mergedSlots = {
-            ...slots,
-            ...mergedProps.value[SpecifyProps.SCOPED_SLOTS]
+          const props = {
+            ...componentProps.value,
+            ...classAndStyleProps.value
           }
 
-          const vnode = h(
-            component as any,
-            props,
-            Object.keys(mergedSlots).length ? mergedSlots : null
-          )
+          const { slots: scopedSlots } = slotProps.value
+          const children = instance.vnode.children
+          const mergedChildren = scopedSlots
+            ? children
+              ? instance.vnode.shapeFlag & ShapeFlags.SLOTS_CHILDREN
+                ? {
+                    ...(children as any),
+                    ...scopedSlots
+                  }
+                : {
+                    default: () => children,
+                    ...scopedSlots
+                  }
+              : scopedSlots
+            : children
 
+          const vnode = h(component as any, props, mergedChildren)
           return forwardRef(vnode)
         }
       }

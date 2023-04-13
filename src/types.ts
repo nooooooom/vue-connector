@@ -14,6 +14,9 @@ export type ComponentCreationType<Props = any> =
 
 export type Props = Record<string, any>
 
+export const PreserveProps = ['class', 'style', '$$slots'] as const
+export type PreserveProps = Partial<Record<typeof PreserveProps[number], any>>
+
 export type NormalizeProps<Props> = NonNullable<Props> extends never ? {} : NonNullable<Props>
 
 export type NormalizeStateProps<Props> = Props extends () => infer S ? S : Props
@@ -21,7 +24,7 @@ export type NormalizeStateProps<Props> = Props extends () => infer S ? S : Props
 export type MapStateProps<StateProps, OwnProps> = (
   ownProps: OwnProps,
   instance: ComponentInternalInstance
-) => StateProps
+) => StateProps & PreserveProps
 
 export type MapStatePropsFactory<StateProps, OwnProps> = (
   initialOwnProps: OwnProps,
@@ -31,16 +34,14 @@ export type MapStatePropsFactory<StateProps, OwnProps> = (
 export type MapStaticProps<StaticProps, OwnProps> = (
   ownProps: OwnProps,
   instance: ComponentInternalInstance
-) => StaticProps
+) => StaticProps & PreserveProps
 
 export type MergeProps<StateProps, StaticProps, OwnProps, MergedProps> = (
-  stateProps: StateProps,
-  dispatchProps: StaticProps,
+  stateProps: StateProps & PreserveProps,
+  dispatchProps: StaticProps & PreserveProps,
   ownProps: OwnProps,
   instance: ComponentInternalInstance
-) => MergedProps
-
-export type ScopedSlots = Record<string, (...args: any[]) => any>
+) => MergedProps & PreserveProps
 
 export type ConnectedComponent<Props> = DefineComponent<Props>
 
