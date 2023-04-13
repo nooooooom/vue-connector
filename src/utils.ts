@@ -1,6 +1,10 @@
 import { isVue2 } from 'vue-lib-toolkit'
 import { ComponentCreationType } from './types'
-import { DefineComponent } from 'vue'
+import { DefineComponent, cloneVNode, h } from 'vue'
+
+export function isDefineComponent(component: ComponentCreationType): component is DefineComponent {
+  return !!component && typeof component === 'object'
+}
 
 export function normalizeFunction<T extends (...args: any[]) => any>(
   func: unknown,
@@ -9,47 +13,43 @@ export function normalizeFunction<T extends (...args: any[]) => any>(
   return (typeof func === 'function' ? func : candidate) as T
 }
 
-export interface NormalizedSlots {
-  scoped: boolean
-  slots: Record<string, any> | undefined
+export function normalizeSlots(): null
+export function normalizeSlots(_slots: Record<string, any>): {
+  slots: Record<string, any>
+  scopedSlots: Record<string, any>
 }
-
-export function normalizeSlots(slots?: Record<string, any>, force?: boolean): NormalizedSlots {
-  if (!slots) {
-    return {
-      scoped: false,
-      slots
-    }
+export function normalizeSlots(_slots?: Record<string, any>) {
+  if (!_slots) {
+    return null
   }
 
-  if (isVue2) {
-    let isScoped = false
-    for (const name in slots) {
-      if (typeof slots[name] === 'function') {
-        isScoped = true
-        break
-      }
-    }
-    if (!isScoped && !force) {
-      return {
-        scoped: false,
-        slots
-      }
-    }
-  }
+  const slots = {} as Record<string, any>
+  const scopedSlots = {} as Record<string, any>
 
-  const normalizedSlots = {} as Record<string, any>
-  for (const name in slots) {
-    const slot = slots[name]
-    normalizedSlots[name] = typeof slot === 'function' ? slot : () => slot
+  for (const name in _slots) {
+    const slot = _slots[name]
+    const isFn = typeof slot === 'function'
+    if (isVue2 && !isFn) {
+      if (slot && typeof slot === 'object' && !Array.isArray(slot)) {
+        slots[name] = cloneVNode(slot, {
+          slot: name
+        })
+      } else {
+        slots[name] = h(
+          'template',
+          {
+            slot: name
+          },
+          slot
+        )
+      }
+    } else {
+      scopedSlots[name] = isFn ? slot : () => slot
+    }
   }
 
   return {
-    scoped: true,
-    slots: normalizedSlots
+    slots,
+    scopedSlots
   }
-}
-
-export function isDefineComponent(component: ComponentCreationType): component is DefineComponent {
-  return !!component && typeof component === 'object'
 }

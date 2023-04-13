@@ -5,7 +5,6 @@ import {
   isEventKey,
   isVue2,
   mergeListeners,
-  ShapeFlags,
   toListenerKey,
   useProps
 } from 'vue-lib-toolkit'
@@ -98,7 +97,6 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
           return props
         })
-        const slotProps = computed(() => normalizeSlots(mergedProps.value.$$slots))
 
         if (isVue2) {
           const vnodeData = computed(() => {
@@ -128,19 +126,18 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               ...classAndStyleProps.value
             } as Props
 
-            const { $slots, $scopedSlots } = <any>instance.proxy
-            const { scoped, slots } = slotProps.value
-            if (Object.keys($slots).length && !scoped) {
-              props.slot = {
-                ...$slots,
-                ...slots
-              }
-            } else {
-              props.scopedSlots = {
-                ...$scopedSlots,
-                ...(scoped ? slots : normalizeSlots(slots, true).slots)
-              }
+            const { $vnode, $slots, $scopedSlots } = <any>instance.proxy
+            const { slots, scopedSlots } = normalizeSlots({
+              ...$scopedSlots,
+              ...$slots,
+              ...$vnode?.data?.slot,
+              ...mergedProps.value.$$slots
+            })
+            if (Object.keys(scopedSlots).length) {
+              props.scopedSlots = scopedSlots
             }
+
+            const children = Object.values(slots)
 
             let vnode: VNode | undefined
             if (typeof component === 'object') {
@@ -148,11 +145,12 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               const EmptyVNode = h()
               if (component instanceof EmptyVNode.constructor) {
                 vnode = cloneVNode(component as VNode, props)
+                vnode!.children = children
               }
             }
 
             if (!vnode) {
-              vnode = h(component as any, props)
+              vnode = h(component as any, props, children)
             }
 
             return forwardRef(vnode)
@@ -166,7 +164,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           }
           const children = {
             ...context.slots,
-            ...slotProps.value.slots
+            ...normalizeSlots(mergedProps.value.$$slots)?.scopedSlots
           }
 
           const vnode = h(component as any, props, children)
