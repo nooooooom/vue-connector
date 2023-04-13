@@ -17,6 +17,8 @@ export type Props = Record<string, any>
 export const PreserveProps = ['class', 'style', '$$slots'] as const
 export type PreserveProps = Partial<Record<typeof PreserveProps[number], any>>
 
+export type UnionPreserveProps<T> = T | (T & PreserveProps)
+
 export type NormalizeProps<Props> = NonNullable<Props> extends never ? {} : NonNullable<Props>
 
 export type NormalizeStateProps<Props> = Props extends () => infer S ? S : Props
@@ -24,7 +26,7 @@ export type NormalizeStateProps<Props> = Props extends () => infer S ? S : Props
 export type MapStateProps<StateProps, OwnProps> = (
   ownProps: OwnProps,
   instance: ComponentInternalInstance
-) => StateProps & PreserveProps
+) => UnionPreserveProps<StateProps>
 
 export type MapStatePropsFactory<StateProps, OwnProps> = (
   initialOwnProps: OwnProps,
@@ -34,14 +36,14 @@ export type MapStatePropsFactory<StateProps, OwnProps> = (
 export type MapStaticProps<StaticProps, OwnProps> = (
   ownProps: OwnProps,
   instance: ComponentInternalInstance
-) => StaticProps & PreserveProps
+) => UnionPreserveProps<StaticProps>
 
 export type MergeProps<StateProps, StaticProps, OwnProps, MergedProps> = (
-  stateProps: StateProps & PreserveProps,
-  dispatchProps: StaticProps & PreserveProps,
+  stateProps: UnionPreserveProps<StateProps>,
+  dispatchProps: UnionPreserveProps<StaticProps>,
   ownProps: OwnProps,
   instance: ComponentInternalInstance
-) => MergedProps & PreserveProps
+) => UnionPreserveProps<MergedProps>
 
 export type ConnectedComponent<Props> = DefineComponent<Props>
 

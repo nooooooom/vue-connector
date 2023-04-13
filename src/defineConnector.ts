@@ -90,10 +90,16 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
         const slotProps = computed(() => normalizeSlots(mergedProps.value.$$slots))
         const classAndStyleProps = computed(() => {
           const { value: mergedPropsValue } = mergedProps
-          return {
-            class: mergedPropsValue.class,
-            style: mergedPropsValue.style
+
+          const props = {} as Props
+          if (mergedPropsValue.class) {
+            props.class = mergedPropsValue.class
           }
+          if (mergedPropsValue.style) {
+            props.style = mergedPropsValue.style
+          }
+
+          return props
         })
 
         if (isVue2) {
