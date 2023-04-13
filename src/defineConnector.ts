@@ -4,8 +4,6 @@ import {
   cloneVNode,
   isEventKey,
   isVue2,
-  mergedClass,
-  mergedStyle,
   mergeListeners,
   ShapeFlags,
   toListenerKey,
@@ -106,13 +104,13 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           return () => {
             const { value: componentPropsValue } = componentProps
 
-            const attrs = {} as Props
-            const listenersProps = {} as Props
+            const attrs = {} as Record<string, any>
+            const listeners = {} as Record<string, any>
             for (const prop in componentPropsValue) {
               const value = componentPropsValue[prop]
               if (isEventKey(prop)) {
                 // onEvent -> event
-                listenersProps[toListenerKey(prop)] = value
+                listeners[toListenerKey(prop)] = value
               } else {
                 attrs[prop] = value
               }
@@ -120,10 +118,11 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
             const props = {
               attrs,
-              on: mergeListeners((context as any).listeners, listenersProps),
+              on: mergeListeners((context as any).listeners, listeners),
               ...classAndStyleProps.value
             } as any
 
+            const children = (instance.proxy as any).$vnode.children
             const { scoped, slots } = slotProps.value
             if (slots) {
               if (scoped) {
@@ -131,10 +130,16 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
                   ...(instance.proxy as any).$scopedSlots,
                   ...slots
                 }
+                if (children) {
+                  props.scopedSlots.default = () => children
+                }
               } else {
                 props.slot = {
                   ...(instance.proxy as any).$slots,
                   ...slots
+                }
+                if (children) {
+                  props.slot.default = children
                 }
               }
             }
@@ -144,12 +149,12 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               // @ts-ignore: Vue2's `h` doesn't process vnode
               const EmptyVNode = h()
               if (component instanceof EmptyVNode.constructor) {
-                vnode = cloneVNode(component as VNode, props)
+                vnode = cloneVNode(component as VNode, props, children)
               }
             }
 
             if (!vnode) {
-              vnode = h(component as any, props)
+              vnode = h(component as any, props, children)
             }
 
             return forwardRef(vnode)
