@@ -14,7 +14,7 @@ export interface NormalizedSlots {
   slots: Record<string, any> | undefined
 }
 
-export function normalizeSlots(slots?: Record<string, any>): NormalizedSlots {
+export function normalizeSlots(slots?: Record<string, any>, force?: boolean): NormalizedSlots {
   if (!slots) {
     return {
       scoped: false,
@@ -30,7 +30,7 @@ export function normalizeSlots(slots?: Record<string, any>): NormalizedSlots {
         break
       }
     }
-    if (!isScoped) {
+    if (!isScoped && !force) {
       return {
         scoped: false,
         slots

@@ -85,7 +85,6 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           return props
         })
 
-        const slotProps = computed(() => normalizeSlots(mergedProps.value.$$slots))
         const classAndStyleProps = computed(() => {
           const { value: mergedPropsValue } = mergedProps
 
@@ -99,48 +98,47 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
           return props
         })
+        const slotProps = computed(() => normalizeSlots(mergedProps.value.$$slots))
 
         if (isVue2) {
-          return () => {
+          const vnodeData = computed(() => {
             const { value: componentPropsValue } = componentProps
 
             const attrs = {} as Record<string, any>
-            const listeners = {} as Record<string, any>
+            const on = {} as Record<string, any>
             for (const prop in componentPropsValue) {
               const value = componentPropsValue[prop]
               if (isEventKey(prop)) {
                 // onEvent -> event
-                listeners[toListenerKey(prop)] = value
+                on[toListenerKey(prop)] = value
               } else {
                 attrs[prop] = value
               }
             }
 
-            const props = {
+            return {
               attrs,
-              on: mergeListeners((context as any).listeners, listeners),
-              ...classAndStyleProps.value
-            } as any
+              on: mergeListeners((context as any).listeners, on)
+            }
+          })
 
-            const children = (instance.proxy as any).$vnode.children
+          return () => {
+            const props = {
+              ...vnodeData.value,
+              ...classAndStyleProps.value
+            } as Props
+
+            const { $slots, $scopedSlots } = <any>instance.proxy
             const { scoped, slots } = slotProps.value
-            if (slots) {
-              if (scoped) {
-                props.scopedSlots = {
-                  ...(instance.proxy as any).$scopedSlots,
-                  ...slots
-                }
-                if (children) {
-                  props.scopedSlots.default = () => children
-                }
-              } else {
-                props.slot = {
-                  ...(instance.proxy as any).$slots,
-                  ...slots
-                }
-                if (children) {
-                  props.slot.default = children
-                }
+            if (Object.keys($slots).length && !scoped) {
+              props.slot = {
+                ...$slots,
+                ...slots
+              }
+            } else {
+              props.scopedSlots = {
+                ...$scopedSlots,
+                ...(scoped ? slots : normalizeSlots(slots, true).slots)
               }
             }
 
@@ -149,12 +147,12 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               // @ts-ignore: Vue2's `h` doesn't process vnode
               const EmptyVNode = h()
               if (component instanceof EmptyVNode.constructor) {
-                vnode = cloneVNode(component as VNode, props, children)
+                vnode = cloneVNode(component as VNode, props)
               }
             }
 
             if (!vnode) {
-              vnode = h(component as any, props, children)
+              vnode = h(component as any, props)
             }
 
             return forwardRef(vnode)
@@ -166,24 +164,12 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
             ...componentProps.value,
             ...classAndStyleProps.value
           }
+          const children = {
+            ...context.slots,
+            ...slotProps.value.slots
+          }
 
-          const { slots: scopedSlots } = slotProps.value
-          const children = instance.vnode.children
-          const mergedChildren = scopedSlots
-            ? children
-              ? instance.vnode.shapeFlag & ShapeFlags.SLOTS_CHILDREN
-                ? {
-                    ...(children as any),
-                    ...scopedSlots
-                  }
-                : {
-                    default: () => children,
-                    ...scopedSlots
-                  }
-              : scopedSlots
-            : children
-
-          const vnode = h(component as any, props, mergedChildren)
+          const vnode = h(component as any, props, children)
           return forwardRef(vnode)
         }
       }
