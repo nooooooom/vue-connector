@@ -15,7 +15,7 @@ export type ComponentCreationType<Props = any> =
 export type Props = Record<string, any>
 
 export const PreserveProps = ['class', 'style', '$$slots'] as const
-export type PreserveProps = Partial<Record<typeof PreserveProps[number], any>>
+export type PreserveProps = Partial<Record<(typeof PreserveProps)[number], any>>
 
 export type UnionPreserveProps<T> = T | (T & PreserveProps)
 
@@ -40,7 +40,7 @@ export type MapStaticProps<StaticProps, OwnProps> = (
 
 export type MergeProps<StateProps, StaticProps, OwnProps, MergedProps> = (
   stateProps: UnionPreserveProps<StateProps>,
-  dispatchProps: UnionPreserveProps<StaticProps>,
+  staticProps: UnionPreserveProps<StaticProps>,
   ownProps: OwnProps,
   instance: ComponentInternalInstance
 ) => UnionPreserveProps<MergedProps>
