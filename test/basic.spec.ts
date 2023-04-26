@@ -1,7 +1,7 @@
 import { describe, it, assert, vi, expect } from 'vitest'
 import { createApp, defineComponent, h, nextTick } from 'vue'
 // import Vue2, { defineComponent, h, nextTick } from 'vue'
-import { defineConnector } from '../src'
+import { defineConnector, omitRedundantProps, wrapperDefaultMergeProps } from '../src'
 
 const mount = (component: any, props?: any, thenUnmount = true) => {
   const instance = createApp({
@@ -118,5 +118,31 @@ describe('Basic', () => {
         { ...slots } as any
       )
     )
+  })
+
+  it('should be excluded all props that are not needed', () => {
+    const expectedProps = {
+      foo: 'foo',
+      bar: 'bar'
+    }
+    const unexpectedProps = {
+      'data-foo': 'foo',
+      dataBar: 'bar'
+    }
+    const validateProps = (ownProps: any) => {
+      assert.deepEqual(expectedProps, ownProps)
+    }
+    const connector = defineConnector(
+      null,
+      null,
+      wrapperDefaultMergeProps((mergedProps) => {
+        validateProps(omitRedundantProps(mergedProps, Object.keys(unexpectedProps)))
+      })
+    )
+
+    mount(connector(Empty), {
+      ...expectedProps,
+      ...unexpectedProps
+    })
   })
 })

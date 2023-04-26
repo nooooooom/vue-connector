@@ -1,3 +1,4 @@
-export { default as defineConnector, wrapperDefaultMergeProps } from './defineConnector'
-export { getAllPossibleProps } from 'vue-lib-toolkit'
+export * from './_helplessHelper'
+export { default as defineConnector } from './defineConnector'
+export { wrapperDefaultMergeProps } from './mergeProps'
 export * from './types'
