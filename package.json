@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "vue-forward-ref": "^0.0.10",
-    "vue-lib-toolkit": "^0.0.13"
+    "vue-lib-toolkit": "^0.0.16"
   },
   "devDependencies": {
     "bumpp": "^8.2.1",
