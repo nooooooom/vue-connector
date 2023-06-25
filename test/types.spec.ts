@@ -19,6 +19,18 @@ describe('Types', () => {
         foo: 'foo'
       }))
     )
+    assertType<
+      Connector<
+        {
+          foo: string
+        },
+        {}
+      >
+    >(
+      defineConnector(() => () => ({
+        foo: 'foo'
+      }))
+    )
   })
 
   it('mapStaticProps only', () => {

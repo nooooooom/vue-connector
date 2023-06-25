@@ -19,9 +19,9 @@ export type PreserveProps = Partial<Record<(typeof PreserveProps)[number], any>>
 
 export type UnionPreserveProps<T> = T | (T & PreserveProps)
 
-export type NormalizeProps<Props> = NonNullable<Props> extends never ? {} : NonNullable<Props>
+export type OmitPreserveProps<T> = Omit<T, keyof PreserveProps>
 
-export type NormalizeStateProps<Props> = Props extends () => infer S ? S : Props
+export type NormalizeProps<Props> = NonNullable<Props> extends never ? {} : NonNullable<Props>
 
 export type MapStateProps<StateProps, OwnProps> = (
   ownProps: OwnProps,
@@ -68,7 +68,7 @@ export interface DefineConnector {
   <StateProps = {}, StaticProps = {}, OwnProps = {}>(
     mapStateProps: MapStateProps<StateProps, OwnProps> | MapStatePropsFactory<StateProps, OwnProps>
   ): Connector<
-    NormalizeProps<NormalizeStateProps<StateProps>> & NormalizeProps<StaticProps>,
+    OmitPreserveProps<NormalizeProps<StateProps> & NormalizeProps<StaticProps>>,
     NormalizeProps<OwnProps>
   >
 
@@ -77,7 +77,7 @@ export interface DefineConnector {
     mapStateProps: null | undefined,
     mapStaticProps: MapStaticProps<StaticProps, OwnProps>
   ): Connector<
-    NormalizeProps<NormalizeStateProps<StateProps>> & NormalizeProps<StaticProps>,
+    OmitPreserveProps<NormalizeProps<StateProps> & NormalizeProps<StaticProps>>,
     NormalizeProps<OwnProps>
   >
 
@@ -86,7 +86,7 @@ export interface DefineConnector {
     mapStateProps: MapStateProps<StateProps, OwnProps> | MapStatePropsFactory<StateProps, OwnProps>,
     mapStaticProps: MapStaticProps<StaticProps, OwnProps>
   ): Connector<
-    NormalizeProps<NormalizeStateProps<StateProps>> & NormalizeProps<StaticProps>,
+    OmitPreserveProps<NormalizeProps<StateProps> & NormalizeProps<StaticProps>>,
     NormalizeProps<OwnProps>
   >
 
@@ -95,19 +95,19 @@ export interface DefineConnector {
     mapStateProps: null | undefined,
     mapStaticProps: null | undefined,
     mergeProps: MergeProps<StateProps, StaticProps, OwnProps, MergedProps>
-  ): Connector<NormalizeProps<MergedProps>, NormalizeProps<OwnProps>>
+  ): Connector<OmitPreserveProps<NormalizeProps<MergedProps>>, NormalizeProps<OwnProps>>
 
   // overload 5: mapStateProps and mergeProps
   <StateProps = {}, StaticProps = {}, OwnProps = {}, MergedProps = {}>(
     mapStateProps: MapStateProps<StateProps, OwnProps> | MapStatePropsFactory<StateProps, OwnProps>,
     mapStaticProps: null | undefined,
-    mergeProps: MergeProps<NormalizeStateProps<StateProps>, StaticProps, OwnProps, MergedProps>
-  ): Connector<NormalizeProps<MergedProps>, NormalizeProps<OwnProps>>
+    mergeProps: MergeProps<StateProps, StaticProps, OwnProps, MergedProps>
+  ): Connector<OmitPreserveProps<NormalizeProps<MergedProps>>, NormalizeProps<OwnProps>>
 
   // overload 6: mapStaticProps and mergeProps
   <StateProps = {}, StaticProps = {}, OwnProps = {}, MergedProps = {}>(
     mapStateProps: null | undefined,
     mapStaticProps: MapStaticProps<StaticProps, OwnProps>,
     mergeProps: MergeProps<StateProps, StaticProps, OwnProps, MergedProps>
-  ): Connector<NormalizeProps<MergedProps>, NormalizeProps<OwnProps>>
+  ): Connector<OmitPreserveProps<NormalizeProps<MergedProps>>, NormalizeProps<OwnProps>>
 }
