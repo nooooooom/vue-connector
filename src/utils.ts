@@ -2,8 +2,6 @@ import { cloneVNode, isVue2 } from 'vue-lib-toolkit'
 import { DefineComponent, h } from 'vue'
 import { ComponentCreationType } from './types'
 
-export const identity = <T>(any: T) => any
-
 export function isDefineComponent(component: ComponentCreationType): component is DefineComponent {
   return !!component && typeof component === 'object'
 }

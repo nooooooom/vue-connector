@@ -18,7 +18,7 @@ import {
   PreserveProps,
   Props
 } from './types'
-import { identity, isDefineComponent, normalizeFunction, normalizeSlots } from './utils'
+import { isDefineComponent, normalizeFunction, normalizeSlots } from './utils'
 import { defaultMergeProps } from './mergeProps'
 
 // implementation
@@ -95,8 +95,6 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           return props
         })
 
-        const render = computed(() => normalizeFunction(mergedProps.value?.$$render, identity))
-
         if (isVue2) {
           const vnodeData = computed(() => {
             const { value: componentPropsValue } = componentProps
@@ -152,7 +150,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               vnode = h(component as any, props, children)
             }
 
-            return render.value(forwardRef(vnode))
+            return forwardRef(vnode)
           }
         }
 
@@ -167,7 +165,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           }
 
           const vnode = h(component as any, props, children)
-          return render.value(forwardRef(vnode))
+          return forwardRef(vnode)
         }
       }
     })
