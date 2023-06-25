@@ -88,7 +88,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
           if (mergedPropsValue.class) {
             props.class = mergedPropsValue.class
           }
-          if (mergedPropsValue.style) {
+          if (mergedPropsValue.style && Object.keys(mergedPropsValue.style).length) {
             props.style = mergedPropsValue.style
           }
 
