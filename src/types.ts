@@ -14,7 +14,7 @@ export type ComponentCreationType<Props = any> =
 
 export type Props = Record<string, any>
 
-export const PreserveProps = ['class', 'style', '$$slots'] as const
+export const PreserveProps = ['class', 'style', '$$slots', '$$nativeOn'] as const
 export type PreserveProps = Partial<Record<(typeof PreserveProps)[number], any>>
 
 export type UnionPreserveProps<T> = T | (T & PreserveProps)

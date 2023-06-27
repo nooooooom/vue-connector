@@ -5,6 +5,7 @@ import {
   isEventKey,
   isVue2,
   mergeListeners,
+  toEventKey,
   toListenerKey,
   useProps
 } from 'vue-lib-toolkit'
@@ -113,7 +114,10 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
             return {
               attrs,
-              on: mergeListeners((context as any).listeners, on)
+              on: mergeListeners((context as any).listeners, on),
+              nativeOn: {
+                ...mergedProps.value?.$$nativeOn
+              }
             }
           })
 
@@ -157,11 +161,17 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
         return () => {
           const props = {
             ...componentProps.value,
-            ...classAndStyleProps.value
+            ...classAndStyleProps.value,
+            ...mergedProps.value?.$$nativeOn
           }
           const children = {
             ...context.slots,
             ...normalizeSlots(mergedProps.value?.$$slots)?.scopedSlots
+          }
+
+          const $$nativeOn = mergedProps.value?.$$nativeOn
+          for (const prop in $$nativeOn) {
+            props[toEventKey(prop)] = $$nativeOn[prop]
           }
 
           const vnode = h(component as any, props, children)
