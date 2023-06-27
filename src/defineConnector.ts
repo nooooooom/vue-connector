@@ -40,16 +40,16 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
     normalizeFunction<MapStaticProps<StaticProps, OwnProps>>(mapStaticProps)
   const normalizedMergeProps = normalizeFunction(mergeProps, defaultMergeProps)
 
-  return (component: ComponentCreationType, propsDefinition: Record<string, any> = {}) => {
+  return (component: ComponentCreationType, propsDefinition?: Record<string, any>) => {
     const wrappedComponentName = (isDefineComponent(component) && component.name) || 'Component'
     const connectComponentName = `Connect${wrappedComponentName}`
 
     const Connect = defineComponent({
       name: connectComponentName,
 
-      inheritAttrs: false,
+      inheritAttrs: !!propsDefinition,
 
-      props: propsDefinition,
+      props: propsDefinition || {},
 
       setup(props, context) {
         const instance = getCurrentInstance()!
