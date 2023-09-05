@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -33,6 +33,9 @@ importers:
       vue:
         specifier: ^3.2.0
         version: 3.2.47
+      vue-module-demi:
+        specifier: ^0.0.6
+        version: 0.0.6(typescript@4.9.5)(vue@3.2.47)
       vue2:
         specifier: npm:vue@^2.7.0
         version: /vue@2.7.14
@@ -2113,6 +2116,20 @@ packages:
       typescript: 4.9.5
       vue: 3.2.47
     dev: false
+
+  /vue-module-demi@0.0.6(typescript@4.9.5)(vue@3.2.47):
+    resolution: {integrity: sha512-MxCCFjrf0ytVE13R+XSxPQo1S5/3At9Ivsz12bXf+m29Oufd6EL5rUMTJvCho6j1/mBaXMwQq/zdqXIWK5SdFw==}
+    requiresBuild: true
+    peerDependencies:
+      typescript: '>=4.4.4'
+      vue: '>=2.7.0 || ^3.2.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 4.9.5
+      vue: 3.2.47
+    dev: true
 
   /vue-reactivity-fantasy@0.0.8(typescript@4.9.5)(vue@3.2.47):
     resolution: {integrity: sha512-3/0kx0bvGviu32tgzXEhO5ZEMl/I+EQ/pcjQGar+nalxH74R3c/zrKBl8vLS1WKvKwfuAp1wqsl08Asj234c9A==}

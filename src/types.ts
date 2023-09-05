@@ -1,4 +1,4 @@
-import { Component, DefineComponent, ExtractPropTypes, VNode } from 'vue'
+import { Component, DefineComponent, ExtractPropTypes, VNode } from 'vue-module-demi'
 import { ComponentInternalInstance } from 'vue-lib-toolkit'
 
 export type { ComponentInternalInstance }

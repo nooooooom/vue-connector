@@ -1,9 +1,55 @@
 import { cloneVNode, isVue2 } from 'vue-lib-toolkit'
-import { DefineComponent, h } from 'vue'
+import Vue, { ComponentOptions, DefineComponent, h } from 'vue-module-demi'
 import { ComponentCreationType } from './types'
 
 export function isDefineComponent(component: ComponentCreationType): component is DefineComponent {
   return !!component && typeof component === 'object'
+}
+
+const camelizeRE = /-(\w)/g
+const camelize = (str: string): string => {
+  return str.replace(camelizeRE, (_, c) => (c ? c.toUpperCase() : ''))
+}
+
+function normalizeProps(props: Record<string, any>) {
+  const normalizedProps: Record<string, any> = {}
+  for (const prop in props) {
+    normalizedProps[camelize(prop)] = props[prop]
+  }
+  return normalizedProps
+}
+
+const defaultStrat = (parentVal: any, childVal: any): any => {
+  return childVal === undefined ? parentVal : childVal
+}
+
+export function resolveComponentPropsDefinition(component: ComponentCreationType) {
+  let propsDefinition = {}
+
+  if (component !== null && typeof component === 'object') {
+    const componentOptions = component as ComponentOptions | DefineComponent
+
+    if (isVue2) {
+      const mergeProps = (child: any) => {
+        if (child.props) {
+          const strats = (Vue as any).config.optionMergeStrategies
+          const start = strats.props || defaultStrat
+          propsDefinition = start(propsDefinition, normalizeProps(child.props))
+        }
+
+        if (child.mixins) {
+          for (let i = 0, l = child.mixins.length; i < l; i++) {
+            mergeProps(child.mixins[i])
+          }
+        }
+      }
+
+      mergeProps((Vue as any).options.props)
+      mergeProps(componentOptions)
+    }
+  }
+
+  return propsDefinition
 }
 
 export function normalizeFunction<T extends (...args: any[]) => any>(

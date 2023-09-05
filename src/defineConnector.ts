@@ -1,4 +1,12 @@
-import { computed, DefineComponent, defineComponent, getCurrentInstance, h, VNode } from 'vue'
+import {
+  computed,
+  DefineComponent,
+  defineComponent,
+  ExtractPropTypes,
+  getCurrentInstance,
+  h,
+  VNode
+} from 'vue-module-demi'
 import { forwardRef } from 'vue-forward-ref'
 import {
   cloneVNode,
@@ -19,7 +27,12 @@ import {
   PreserveProps,
   Props
 } from './types'
-import { isDefineComponent, normalizeFunction, normalizeSlots } from './utils'
+import {
+  isDefineComponent,
+  normalizeFunction,
+  normalizeSlots,
+  resolveComponentPropsDefinition
+} from './utils'
 import { defaultMergeProps } from './mergeProps'
 
 // implementation
@@ -40,16 +53,22 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
     normalizeFunction<MapStaticProps<StaticProps, OwnProps>>(mapStaticProps)
   const normalizedMergeProps = normalizeFunction(mergeProps, defaultMergeProps)
 
-  return (component: ComponentCreationType, propsDefinition?: Record<string, any>) => {
+  return <AdditionalProps extends Record<string, any>>(
+    component: ComponentCreationType,
+    additionalProps?: AdditionalProps
+  ) => {
     const wrappedComponentName = (isDefineComponent(component) && component.name) || 'Component'
     const connectComponentName = `Connect${wrappedComponentName}`
 
     const Connect = defineComponent({
       name: connectComponentName,
 
-      inheritAttrs: !!propsDefinition,
+      inheritAttrs: true,
 
-      props: propsDefinition || {},
+      props: {
+        ...resolveComponentPropsDefinition(component),
+        ...additionalProps
+      },
 
       setup(props, context) {
         const instance = getCurrentInstance()!
@@ -180,7 +199,9 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
       }
     })
 
-    return Connect as DefineComponent<OwnProps>
+    return Connect as any as DefineComponent<
+      Omit<OwnProps, keyof AdditionalProps> & ExtractPropTypes<AdditionalProps>
+    >
   }
 }
 
