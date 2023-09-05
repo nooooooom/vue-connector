@@ -34,8 +34,8 @@ importers:
         specifier: ^3.2.0
         version: 3.2.47
       vue-module-demi:
-        specifier: ^0.0.6
-        version: 0.0.6(typescript@4.9.5)(vue@3.2.47)
+        specifier: ^0.0.7
+        version: 0.0.7(typescript@4.9.5)(vue@3.2.47)
       vue2:
         specifier: npm:vue@^2.7.0
         version: /vue@2.7.14
@@ -2117,8 +2117,8 @@ packages:
       vue: 3.2.47
     dev: false
 
-  /vue-module-demi@0.0.6(typescript@4.9.5)(vue@3.2.47):
-    resolution: {integrity: sha512-MxCCFjrf0ytVE13R+XSxPQo1S5/3At9Ivsz12bXf+m29Oufd6EL5rUMTJvCho6j1/mBaXMwQq/zdqXIWK5SdFw==}
+  /vue-module-demi@0.0.7(typescript@4.9.5)(vue@3.2.47):
+    resolution: {integrity: sha512-N+2FMH4pWP5RTNVEdDTHcUrjf8WJHoD13PTd4xY6+yuEpRY47ecJq68st1mdca73nwS8IznOvOmlYorPRVl6SA==}
     requiresBuild: true
     peerDependencies:
       typescript: '>=4.4.4'
