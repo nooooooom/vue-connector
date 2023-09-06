@@ -4,6 +4,6 @@ export default <Options>{
   entryPoints: ['src/index.ts'],
   clean: true,
   format: ['cjs', 'esm'],
-  external: ['vue'],
+  external: ['vue-module-demi'],
   dts: true
 }

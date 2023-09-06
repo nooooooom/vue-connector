@@ -1,4 +1,4 @@
-import { createApp, defineComponent, h } from 'vue'
+import { createApp, defineComponent, h } from 'vue-module-demi'
 import { createPinia } from 'pinia'
 import { defineConnector } from '../../../src'
 import { useCounterStore } from './stores'

@@ -1,4 +1,4 @@
-import { createApp, defineComponent, h } from 'vue'
+import { createApp, defineComponent, h } from 'vue-module-demi'
 import { useStore } from 'vuex'
 import { defineConnector } from '../../../src'
 import { store } from './stores'

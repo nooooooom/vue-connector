@@ -1,6 +1,5 @@
 import { describe, it, assert, vi, expect } from 'vitest'
-import { createApp, defineComponent, h, nextTick } from 'vue'
-// import Vue2, { defineComponent, h, nextTick } from 'vue'
+import { createApp, defineComponent, h, nextTick } from 'vue-module-demi'
 import { defineConnector, omitRedundantProps, wrapperDefaultMergeProps } from '../src'
 
 const mount = (component: any, props?: any, thenUnmount = true) => {
