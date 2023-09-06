@@ -31,7 +31,7 @@
   "dependencies": {
     "vue-forward-ref": "^0.0.10",
     "vue-lib-toolkit": "^0.0.17",
-    "vue-module-demi": "^0.0.7"
+    "vue-module-demi": "^0.0.8"
   },
   "devDependencies": {
     "bumpp": "^8.2.1",
@@ -42,7 +42,7 @@
   },
   "peerDependencies": {
     "typescript": ">=4.4.4",
-    "vue": "^2.7.0 || ^3.2.0"
+    "vue": "^3.2.0 || ^2.7.0"
   },
   "peerDependenciesMeta": {
     "typescript": {

@@ -27,7 +27,7 @@ export function resolveComponentPropsDefinition(component: ComponentCreationType
   let propsDefinition = {}
 
   if (component !== null && typeof component === 'object') {
-    const componentOptions = component as ComponentOptions | DefineComponent
+    const componentOptions = component as ComponentOptions<any> | DefineComponent
 
     if (isVue2) {
       const mergeProps = (child: any) => {
@@ -77,7 +77,7 @@ export function normalizeSlots(_slots?: Record<string, any>) {
     const isFn = typeof slot === 'function'
     if (isVue2 && !isFn) {
       if (slot && typeof slot === 'object' && !Array.isArray(slot)) {
-        slots[name] = cloneVNode(slot, {
+        slots[name] = cloneVNode!(slot, {
           slot: name
         })
       } else {
