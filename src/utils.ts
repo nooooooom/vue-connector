@@ -44,7 +44,7 @@ export function resolveComponentPropsDefinition(component: ComponentCreationType
         }
       }
 
-      mergeProps((Vue as any).options.props)
+      mergeProps((Vue as any).options)
       mergeProps(componentOptions)
     }
   }
