@@ -25,13 +25,12 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest",
-    "prepublish": "vitest run && pnpm build",
     "release": "bumpp package.json --commit --push --tag && pnpm publish --access public"
   },
   "dependencies": {
     "vue-forward-ref": "^0.0.10",
-    "vue-lib-toolkit": "^0.0.17",
-    "vue-module-demi": "^0.0.8"
+    "vue-lib-toolkit": "^0.0.20",
+    "vue-module-demi": "^0.0.9"
   },
   "devDependencies": {
     "bumpp": "^8.2.1",
