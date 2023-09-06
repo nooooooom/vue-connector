@@ -164,7 +164,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
               // @ts-ignore: Vue2's `h` doesn't process vnode
               const EmptyVNode = h()
               if (component instanceof EmptyVNode.constructor) {
-                vnode = cloneVNode(component as VNode, props)
+                vnode = cloneVNode!(component as VNode, props)
                 vnode!.children = children
               }
             }
@@ -193,7 +193,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
             props[toEventKey(prop)] = $$nativeOn[prop]
           }
 
-          const vnode = h(component as any, props, children)
+          const vnode = h(component as any, props, children as any)
           return forwardRef(vnode)
         }
       }
