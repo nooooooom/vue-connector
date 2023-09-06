@@ -15,11 +15,11 @@ importers:
         specifier: ^0.0.10
         version: 0.0.10(typescript@4.9.5)(vue@2.7.14)
       vue-lib-toolkit:
-        specifier: ^0.0.20
-        version: 0.0.20(typescript@4.9.5)(vue@2.7.14)
+        specifier: ^0.0.21
+        version: 0.0.21(typescript@4.9.5)(vue@2.7.14)
       vue-module-demi:
-        specifier: ^0.0.9
-        version: 0.0.9(typescript@4.9.5)(vue@2.7.14)
+        specifier: ^0.0.10
+        version: 0.0.10(typescript@4.9.5)(vue@2.7.14)
     devDependencies:
       bumpp:
         specifier: ^8.2.1
@@ -2097,8 +2097,8 @@ packages:
       vue: 2.7.14
     dev: false
 
-  /vue-lib-toolkit@0.0.20(typescript@4.9.5)(vue@2.7.14):
-    resolution: {integrity: sha512-f4xyqzXC0NhlQq9OIhYAzsWcWCGa8XhwNLQ+BtfS/mYdI3YbJnYzsiLL7imox1F6dROPikHytSxlBSW/CWXGvw==}
+  /vue-lib-toolkit@0.0.21(typescript@4.9.5)(vue@2.7.14):
+    resolution: {integrity: sha512-mW7loFzS/JGBkB6J9q7vrKCUjoLf9y9UtASvyxSMPO8Pbw5vIh2pxDEEWihxcCBhuqbg/KKwFM/FLRxmasGqLA==}
     peerDependencies:
       typescript: '>=4.4.4'
       vue: '>=2.7.0 || ^3.2.0'
@@ -2109,12 +2109,12 @@ packages:
       '@vue/shared': 3.2.47
       typescript: 4.9.5
       vue: 2.7.14
-      vue-module-demi: 0.0.9(typescript@4.9.5)(vue@2.7.14)
+      vue-module-demi: 0.0.10(typescript@4.9.5)(vue@2.7.14)
       vue-reactivity-fantasy: 0.0.8(typescript@4.9.5)(vue@2.7.14)
     dev: false
 
-  /vue-module-demi@0.0.9(typescript@4.9.5)(vue@2.7.14):
-    resolution: {integrity: sha512-M6l/iRaze1S+KawgR5siok/66Oahbk8DTnZ86hQXMbgGYcl5SMFcOyrQWGCtM9i/0elHvaUFprCKiumG961ieQ==}
+  /vue-module-demi@0.0.10(typescript@4.9.5)(vue@2.7.14):
+    resolution: {integrity: sha512-ldiIoXwPB9tsXg4xYPux2rJ4oEFgoL7rU6tRvAVocPoanK2wBe9RWx+/JcJ2Snj2pfA0FSHnWo/Hno/15IHu8Q==}
     requiresBuild: true
     peerDependencies:
       typescript: '>=4.4.4'
