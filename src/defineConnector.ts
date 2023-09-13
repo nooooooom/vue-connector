@@ -53,7 +53,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
     normalizeFunction<MapStaticProps<StaticProps, OwnProps>>(mapStaticProps)
   const normalizedMergeProps = normalizeFunction(mergeProps, defaultMergeProps)
 
-  return <AdditionalProps extends Record<string, any>>(
+  return <AdditionalProps extends Record<string, any> | null>(
     component: ComponentCreationType,
     additionalProps?: AdditionalProps | null,
     inheritProps?: boolean | ((inheritedProps: Record<string, any>) => Record<string, any>)

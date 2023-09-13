@@ -51,13 +51,44 @@ export type ExtractComponentPropTypes<T> = T extends ComponentCreationType<infer
   ? ExtractPropTypes<Props>
   : {}
 
-export type Connector<InjectedProps, NeedsProps> = <C extends ComponentCreationType<NeedsProps>>(
+type AssignProps<
+  Props extends Record<string, any>[],
+  Target extends Record<string, any> = {}
+> = Props extends [infer First, ...infer Extras extends Record<string, any>[]]
+  ? AssignProps<Extras, Target & NonNullable<Omit<First, keyof Target>>>
+  : Target
+
+export type InheritProps<InheritedProps extends Record<string, any>> =
+  | boolean
+  | ((inheritedProps: InheritedProps) => Partial<InheritedProps>)
+
+export type ExtractInheritedProps<
+  T extends InheritProps<any>,
+  InheritedProps extends Record<string, any> = never
+> = T extends true
+  ? InheritedProps
+  : T extends (...args: any[]) => any
+  ? ReturnType<T>
+  : Record<string, any>
+
+export type Connector<
+  InjectedProps extends Record<string, any>,
+  NeedsProps extends Record<string, any>
+> = <
+  C extends ComponentCreationType<NeedsProps>,
+  I extends InheritProps<ExtractComponentPropTypes<C>> = false
+>(
   component: C,
-  propsDefinition?: Record<string, any>
+  propsDefinition?: NeedsProps,
+  inheritProps?: I
 ) => ConnectedComponent<
-  Partial<InjectedProps> &
-    NeedsProps &
-    Omit<ExtractComponentPropTypes<C>, keyof InjectedProps | keyof NeedsProps>
+  AssignProps<
+    [
+      Partial<InjectedProps>,
+      ExtractInheritedProps<I, ExtractComponentPropTypes<C>>,
+      Omit<ExtractComponentPropTypes<C>, keyof InjectedProps | keyof NeedsProps>
+    ]
+  >
 >
 
 export interface DefineConnector {
