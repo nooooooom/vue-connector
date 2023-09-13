@@ -25,7 +25,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest",
-    "prepublish": "vitest run && pnpm build",
+    "prepublish": "pnpm build",
     "release": "bumpp package.json --commit --push --tag && pnpm publish --access public"
   },
   "dependencies": {

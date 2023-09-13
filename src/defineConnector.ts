@@ -138,6 +138,7 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
             return {
               attrs,
+              props: attrs,
               on: mergeListeners((context as any).listeners, on),
               nativeOn: {
                 ...mergedProps.value?.$$nativeOn
