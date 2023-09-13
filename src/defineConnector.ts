@@ -55,10 +55,13 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
 
   return <AdditionalProps extends Record<string, any>>(
     component: ComponentCreationType,
-    additionalProps?: AdditionalProps
+    additionalProps?: AdditionalProps | null,
+    inheritProps?: boolean | ((inheritedProps: Record<string, any>) => Record<string, any>)
   ) => {
     const wrappedComponentName = (isDefineComponent(component) && component.name) || 'Component'
     const connectComponentName = `Connect${wrappedComponentName}`
+
+    const inheritedProps = resolveComponentPropsDefinition(component)
 
     const Connect = defineComponent({
       name: connectComponentName,
@@ -66,7 +69,9 @@ function defineConnector<StateProps = {}, StaticProps = {}, OwnProps = {}, Merge
       inheritAttrs: true,
 
       props: {
-        ...resolveComponentPropsDefinition(component),
+        ...(typeof inheritedProps === 'function'
+          ? inheritedProps()
+          : inheritProps && inheritedProps),
         ...additionalProps
       },
 
