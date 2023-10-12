@@ -12,8 +12,8 @@ importers:
         specifier: ^3.2.0 || ^2.7.0
         version: 2.7.14
       vue-forward-ref:
-        specifier: ^0.0.12
-        version: 0.0.12(typescript@4.9.5)(vue@2.7.14)
+        specifier: ^0.0.13
+        version: 0.0.13(typescript@4.9.5)(vue@2.7.14)
       vue-lib-toolkit:
         specifier: ^0.0.25
         version: 0.0.25(typescript@4.9.5)(vue@2.7.14)
@@ -2083,8 +2083,8 @@ packages:
       vue: 3.2.47
     dev: true
 
-  /vue-forward-ref@0.0.12(typescript@4.9.5)(vue@2.7.14):
-    resolution: {integrity: sha512-b+JHn5V0A70UK2B5+G7bTQDY9nSoz3wE1JmsY2Zv+PBDKpu4YTLOPI0Adz9Wrgygh1Q/psgmzRpgw3B7XoljfQ==}
+  /vue-forward-ref@0.0.13(typescript@4.9.5)(vue@2.7.14):
+    resolution: {integrity: sha512-sfdqZx7Tnq7Qo5FkEgoC6qcBl5bJHoy9dVl/mLvvLCmkQq+lqjE4Edfgp/yj9/D5CpaaCqeZGnwpVZRbHFtMMw==}
     peerDependencies:
       typescript: '>=4.4.4'
       vue: ^2.7.0 || ^3.2.0
